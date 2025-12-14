@@ -8,6 +8,7 @@ import { ProtectedRoute } from "./infra/routes/ProtectedRoute";
 export default function App() {
   return (
     <Routes>
+      <h1>Welcome to FrostApp Admin</h1>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
