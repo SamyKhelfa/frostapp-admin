@@ -14,7 +14,6 @@ export default function Dashboard() {
       <div style={{ marginTop: 12 }}>
         <button onClick={() => logout()}>Se déconnecter</button>
       </div>
-      {/* ici ajouter gestion des chapitres, leçons... */}
     </AdminLayout>
   );
 }

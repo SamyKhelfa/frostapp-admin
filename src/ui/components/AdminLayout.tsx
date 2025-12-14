@@ -11,7 +11,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <li>
               <Link to="/dashboard">Accueil</Link>
             </li>
-            {/* ajouter liens: chapters, lessons, users... */}
           </ul>
         </nav>
       </aside>
