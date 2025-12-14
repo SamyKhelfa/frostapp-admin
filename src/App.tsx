@@ -9,6 +9,7 @@ export default function App() {
   return (
     <Routes>
       <h1>Welcome to FrostApp Admin</h1>
+      <p>Lel</p>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
