@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { AuthContext } from "../../core/context/AuthContext";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { Card, Button } from "antd";
+import UserOptions from "../components/UserOptions/UserOptions";
 
 export default function Dashboard() {
   const { logout } = useContext(AuthContext);
@@ -9,15 +10,8 @@ export default function Dashboard() {
   return (
     <AdminLayout>
       <Card>
+        <UserOptions onLogout={logout} />
         <h1>Dashboard Admin</h1>
-        <div style={{ marginTop: 20 }}>
-          <Button
-            style={{ backgroundColor: "#001529", color: "#fff" }}
-            onClick={() => logout()}
-          >
-            Se déconnecter
-          </Button>
-        </div>
       </Card>
     </AdminLayout>
   );

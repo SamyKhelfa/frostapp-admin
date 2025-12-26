@@ -20,7 +20,13 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@ui/*": ["ui/*"],
+      "@infra/*": ["infra/*"],
+      "@mocks/*": ["mocks/*"],
+      "@core/*": ["core/*"]
+    }
   },
   "include": ["vite.config.ts"]
 }

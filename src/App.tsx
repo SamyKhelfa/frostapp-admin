@@ -4,6 +4,7 @@ import Login from "./ui/pages/Login";
 import Register from "./ui/pages/Register";
 import Dashboard from "./ui/pages/Dashboard";
 import Courses from "./ui/pages/Courses";
+import AddCourse from "./ui/pages/AddCourse";
 import { ProtectedRoute } from "./infra/routes/ProtectedRoute";
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/courses" element={<Courses />} />
+      <Route path="/AddCourse" element={<AddCourse />} />
 
       {/* <Route path="/dashboard/*" element={<ProtectedRoute></ProtectedRoute>} /> */}
     </Routes>
