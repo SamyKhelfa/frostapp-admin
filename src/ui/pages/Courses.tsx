@@ -1,7 +1,7 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { Button, Card, Empty, List, Space, Tag } from "antd";
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   loadMockCourses,
   clearMockCourses,
@@ -9,6 +9,7 @@ import {
 } from "../../core/services/mockCourses";
 
 export default function Courses() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<MockCourse[]>([]);
 
   useEffect(() => {
@@ -50,17 +51,20 @@ export default function Courses() {
               <List.Item>
                 <Card
                   title={course.title}
+                  hoverable
+                  onClick={() => navigate(`/courses/${course.id}`)}
+                  style={{ cursor: "pointer" }}
                   extra={
                     <Space>
                       <Tag color="purple">
-                        {course.lessons?.length || 0} leçons
+                        {course.lessons?.length || 0} leçon(s)
                       </Tag>
                       <Tag color="blue">
                         {(course.lessons || []).reduce(
                           (acc, l) => acc + (l.chapters?.length || 0),
                           0
                         )}{" "}
-                        chapitres
+                        chapitre(s)
                       </Tag>
                     </Space>
                   }

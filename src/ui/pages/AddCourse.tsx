@@ -12,16 +12,26 @@ import {
   Collapse,
   Empty,
   Tag,
+  Upload,
+  Typography,
 } from "antd";
-import { PlusOutlined, DeleteOutlined, BookOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  BookOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import type { IChapter } from "../../core/interfaces/chapter.interface";
 import {
   saveMockCourse,
   type MockLesson,
 } from "../../core/services/mockCourses";
+import { fileToDataUrl } from "../../core/services/file";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
+import { NavLink } from "react-router-dom";
 
 export const AddCourse: React.FC = () => {
+  const { Text } = Typography;
   const [form] = Form.useForm();
   const [lessons, setLessons] = useState<MockLesson[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,6 +74,7 @@ export const AddCourse: React.FC = () => {
           title: "",
           description: "",
           image: "",
+          images: [],
           status: false,
           position: chapters.length + 1,
         },
@@ -93,6 +104,61 @@ export const AddCourse: React.FC = () => {
     chapters[chapterIndex] = { ...chapters[chapterIndex], [field]: value };
     next[lessonIndex] = { ...next[lessonIndex], chapters };
     setLessons(next);
+  };
+
+  const handleAddChapterImages = async (
+    lessonIndex: number,
+    chapterIndex: number,
+    newFiles: File[]
+  ) => {
+    const next = [...lessons];
+    const chapters = [...(next[lessonIndex].chapters || [])];
+    const existing =
+      (chapters[chapterIndex].images as string[] | undefined) ??
+      (chapters[chapterIndex].image
+        ? [chapters[chapterIndex].image as string]
+        : []);
+
+    const uploaded = await Promise.all(
+      newFiles.map((file) => fileToDataUrl(file))
+    );
+
+    const nextImages = [...existing, ...uploaded];
+
+    chapters[chapterIndex] = {
+      ...chapters[chapterIndex],
+      images: nextImages,
+      image: nextImages[0] ?? "",
+    };
+
+    next[lessonIndex] = { ...next[lessonIndex], chapters };
+    setLessons(next);
+  };
+
+  const handleRemoveChapterImage = (
+    lessonIndex: number,
+    chapterIndex: number,
+    imageIndex: number
+  ) => {
+    const next = [...lessons];
+    const chapters = [...(next[lessonIndex].chapters || [])];
+    const current =
+      (chapters[chapterIndex].images as string[] | undefined) ??
+      (chapters[chapterIndex].image
+        ? [chapters[chapterIndex].image as string]
+        : []);
+
+    const nextImages = current.filter((_, idx) => idx !== imageIndex);
+
+    chapters[chapterIndex] = {
+      ...chapters[chapterIndex],
+      images: nextImages,
+      image: nextImages[0] ?? "",
+    };
+
+    next[lessonIndex] = { ...next[lessonIndex], chapters };
+    setLessons(next);
+    message.success("Image retirée");
   };
 
   const onSubmit = async (values: any) => {
@@ -149,7 +215,7 @@ export const AddCourse: React.FC = () => {
                 ]}
               >
                 <Input
-                  placeholder="Ex: Introduction à React"
+                  placeholder="Ex: Introduction à la douche froide"
                   size="large"
                   allowClear
                 />
@@ -328,7 +394,7 @@ export const AddCourse: React.FC = () => {
                                     </Form.Item>
 
                                     <Form.Item label="Description">
-                                      <Input
+                                      <Input.TextArea
                                         placeholder="Entrez la description du chapitre"
                                         rows={3}
                                         value={chapter.description || ""}
@@ -343,21 +409,103 @@ export const AddCourse: React.FC = () => {
                                       />
                                     </Form.Item>
 
-                                    <Form.Item label="Image">
-                                      <Input
-                                        placeholder="URL de l'image"
-                                        value={chapter.image || ""}
-                                        onChange={(e) =>
-                                          handleChapterChange(
-                                            lessonIndex,
-                                            chapterIndex,
-                                            "image",
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    </Form.Item>
+                                    <Form.Item label="Images du chapitre">
+                                      <Space
+                                        direction="vertical"
+                                        style={{ width: "100%" }}
+                                      >
+                                        <Upload
+                                          accept="image/*"
+                                          multiple
+                                          showUploadList={false}
+                                          beforeUpload={async (file) => {
+                                            try {
+                                              await handleAddChapterImages(
+                                                lessonIndex,
+                                                chapterIndex,
+                                                [file]
+                                              );
+                                              message.success("Image importée");
+                                            } catch (err) {
+                                              message.error(
+                                                "Impossible d'importer l'image"
+                                              );
+                                              console.error(err);
+                                            }
+                                            return false;
+                                          }}
+                                        >
+                                          <Button icon={<UploadOutlined />}>
+                                            Ajouter des images
+                                          </Button>
+                                        </Upload>
 
+                                        {(() => {
+                                          const chapterImages =
+                                            (chapter.images as
+                                              | string[]
+                                              | undefined) ??
+                                            (chapter.image
+                                              ? [chapter.image as string]
+                                              : []);
+
+                                          return chapterImages.length > 0 ? (
+                                            <Space wrap>
+                                              {chapterImages.map(
+                                                (img, imgIndex) => (
+                                                  <div
+                                                    key={`${lesson.id}-${chapterIndex}-${imgIndex}`}
+                                                    style={{
+                                                      position: "relative",
+                                                      width: 140,
+                                                      height: 100,
+                                                      borderRadius: 8,
+                                                      overflow: "hidden",
+                                                      boxShadow:
+                                                        "0 1px 4px rgba(0,0,0,0.15)",
+                                                    }}
+                                                  >
+                                                    <img
+                                                      src={img}
+                                                      alt="Prévisualisation"
+                                                      style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover",
+                                                      }}
+                                                    />
+                                                    <Button
+                                                      size="small"
+                                                      type="primary"
+                                                      danger
+                                                      icon={<DeleteOutlined />}
+                                                      onClick={() =>
+                                                        handleRemoveChapterImage(
+                                                          lessonIndex,
+                                                          chapterIndex,
+                                                          imgIndex
+                                                        )
+                                                      }
+                                                      style={{
+                                                        position: "absolute",
+                                                        top: 8,
+                                                        right: 8,
+                                                        padding: "0 6px",
+                                                      }}
+                                                    />
+                                                  </div>
+                                                )
+                                              )}
+                                            </Space>
+                                          ) : (
+                                            <Text type="secondary">
+                                              Aucune image sélectionnée pour ce
+                                              chapitre
+                                            </Text>
+                                          );
+                                        })()}
+                                      </Space>
+                                    </Form.Item>
                                     <Space
                                       style={{ width: "100%" }}
                                       align="center"
@@ -450,7 +598,9 @@ export const AddCourse: React.FC = () => {
               >
                 Créer le cours
               </Button>
-              <Button size="large">Annuler</Button>
+              <Button size="large">
+                <NavLink to="/courses">Annuler</NavLink>
+              </Button>
             </Space>
           </Form>
         </Card>
