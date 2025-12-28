@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -24,17 +24,39 @@ import {
 import type { IChapter } from "../../core/interfaces/chapter.interface";
 import {
   saveMockCourse,
+  updateMockCourse,
+  loadMockCourses,
   type MockLesson,
 } from "../../core/services/mockCourses";
 import { fileToDataUrl } from "../../core/services/file";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 
 export const AddCourse: React.FC = () => {
   const { Text } = Typography;
+  const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [lessons, setLessons] = useState<MockLesson[]>([]);
   const [loading, setLoading] = useState(false);
+  const isEditMode = Boolean(courseId);
+
+  useEffect(() => {
+    if (courseId) {
+      const courses = loadMockCourses();
+      const course = courses.find((c) => c.id === courseId);
+      
+      if (course) {
+        form.setFieldsValue({
+          title: course.title,
+          description: course.description,
+        });
+        setLessons(course.lessons || []);
+      } else {
+        message.error("Cours introuvable");
+      }
+    }
+  }, [courseId, form]);
 
   const handleAddLesson = () => {
     setLessons([
@@ -169,13 +191,24 @@ export const AddCourse: React.FC = () => {
         lessons,
       };
 
-      const saved = saveMockCourse(courseData);
-      console.log("Mock course saved:", saved);
-      message.success("Cours créé avec succès!");
-      form.resetFields();
-      setLessons([]);
+      if (isEditMode && courseId) {
+        const updated = updateMockCourse(courseId, courseData);
+        if (updated) {
+          console.log("Mock course updated:", updated);
+          message.success("Cours modifié avec succès!");
+          navigate(`/courses/${courseId}`);
+        } else {
+          message.error("Impossible de mettre à jour le cours");
+        }
+      } else {
+        const saved = saveMockCourse(courseData);
+        console.log("Mock course saved:", saved);
+        message.success("Cours créé avec succès!");
+        form.resetFields();
+        setLessons([]);
+      }
     } catch (error: any) {
-      message.error(error?.message || "Erreur lors de la création du cours");
+      message.error(error?.message || (isEditMode ? "Erreur lors de la modification du cours" : "Erreur lors de la création du cours"));
     } finally {
       setLoading(false);
     }
@@ -188,7 +221,7 @@ export const AddCourse: React.FC = () => {
           title={
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <BookOutlined style={{ fontSize: 24 }} />
-              <span>Créer un nouveau cours</span>
+              <span>{isEditMode ? "Modifier le cours" : "Créer un nouveau cours"}</span>
             </div>
           }
           style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
@@ -596,7 +629,7 @@ export const AddCourse: React.FC = () => {
                 loading={loading}
                 style={{ minWidth: 150 }}
               >
-                Créer le cours
+                {isEditMode ? "Modifier le cours" : "Créer le cours"}
               </Button>
               <Button size="large">
                 <NavLink to="/courses">Annuler</NavLink>

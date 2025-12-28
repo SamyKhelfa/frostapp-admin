@@ -42,6 +42,28 @@ export function saveMockCourse(
   return newCourse;
 }
 
+export function updateMockCourse(
+  courseId: string,
+  course: Omit<MockCourse, "id" | "createdAt">
+): MockCourse | null {
+  const existing = loadMockCourses();
+  const index = existing.findIndex((c) => c.id === courseId);
+  
+  if (index === -1) {
+    return null;
+  }
+
+  const updatedCourse: MockCourse = {
+    ...course,
+    id: courseId,
+    createdAt: existing[index].createdAt,
+  };
+
+  existing[index] = updatedCourse;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+  return updatedCourse;
+}
+
 export function clearMockCourses() {
   localStorage.removeItem(STORAGE_KEY);
 }

@@ -16,6 +16,7 @@ import {
   BookOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import {
@@ -82,6 +83,13 @@ export default function CourseDetail() {
                   )}{" "}
                   chapitre(s)
                 </Tag>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => navigate(`/courses/edit/${course.id}`)}
+                >
+                  Modifier
+                </Button>
               </Space>
             }
           >
