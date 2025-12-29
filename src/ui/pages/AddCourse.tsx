@@ -31,6 +31,8 @@ import {
 import { fileToDataUrl } from "../../core/services/file";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
+import UserOptions from "../components/UserOptions/UserOptions";
+import { logout } from "../../core/services/auth.service";
 
 export const AddCourse: React.FC = () => {
   const { Text } = Typography;

@@ -8,6 +8,7 @@ import AddCourse from "./ui/pages/AddCourse";
 import CourseDetail from "./ui/pages/CourseDetail";
 import { ProtectedRoute } from "./infra/routes/ProtectedRoute";
 import Community from "./ui/pages/Community";
+import { Users } from "./ui/pages/Users";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/AddCourse" element={<AddCourse />} />
       <Route path="/courses/edit/:courseId" element={<AddCourse />} />
       <Route path="/community" element={<Community />} />
+      <Route path="/users" element={<Users />} />
 
       {/* <Route path="/dashboard/*" element={<ProtectedRoute></ProtectedRoute>} /> */}
     </Routes>

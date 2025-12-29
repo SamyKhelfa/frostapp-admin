@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { Layout, Menu, Card } from "antd";
-import { HomeOutlined, BookOutlined, TeamOutlined } from "@ant-design/icons";
+import { HomeOutlined, BookOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import flake from "../../../assets/flake.png";
 
@@ -52,6 +52,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 icon: <TeamOutlined />,
                 label: "Community",
               },
+              {
+                key: "/users",
+                icon: <UserOutlined />,
+                label: "Users",
+              }
             ]}
           />
         </Sider>
