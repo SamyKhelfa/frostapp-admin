@@ -4,6 +4,7 @@ import { AuthContext } from "../../core/context/AuthContext";
 import { Input, Button, Form, message, Card, Typography, Space } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import axios from "axios";
+import { USER_ROLE } from "../../core/constants";
 
 const { Title, Text } = Typography;
 
@@ -22,10 +23,11 @@ export default function Login() {
 
     try {
       const formData = await form.validateFields();
-      console.log(formData);
-      const res = await login("", "");
+
+      const res = await login(formData.email, formData.password);
       const user = res.user ?? res;
-      if (!user?.isAdmin) throw new Error("Accès admin requis");
+      if (!user?.role === USER_ROLE.admin)
+        throw new Error("Accès admin requis");
       nav("/dashboard");
     } catch (error: any) {
       setErr(error?.message || "Erreur de connexion");
