@@ -1,18 +1,14 @@
-import React, { useState, useContext, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../../core/context/AuthContext";
-import { Input, Button, Form, message, Card, Typography, Space } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import axios from "axios";
-import { USER_ROLE } from "../../core/constants";
+import { Button, Card, Form, Input, Space, Typography } from "antd";
+import { useContext, useState } from "react";
+import { AuthContext } from "../../core/context/AuthContext";
 
 const { Title, Text } = Typography;
 
 export default function Login() {
   const [form] = Form.useForm();
 
-  const { login } = useContext(AuthContext);
-  const nav = useNavigate();
+  const { handleLogin } = useContext(AuthContext);
 
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,11 +20,12 @@ export default function Login() {
     try {
       const formData = await form.validateFields();
 
-      const res = await login(formData.email, formData.password);
-      const user = res.user ?? res;
-      if (!user?.role === USER_ROLE.admin)
-        throw new Error("Accès admin requis");
-      nav("/dashboard");
+      await handleLogin({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // nav("/dashboard");
     } catch (error: any) {
       setErr(error?.message || "Erreur de connexion");
     } finally {
@@ -112,10 +109,6 @@ export default function Login() {
               <Text style={{ color: "white" }}>{err}</Text>
             </Card>
           )}
-
-          <div style={{ textAlign: "center" }}>
-            <Link to="/register">Créer un compte admin</Link>
-          </div>
         </Space>
       </Card>
     </div>

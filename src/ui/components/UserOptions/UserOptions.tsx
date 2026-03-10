@@ -1,5 +1,5 @@
-import React from "react";
-import { Dropdown, Avatar, Menu } from "antd";
+import type { FC } from "react";
+import { Dropdown, Avatar } from "antd";
 import {
   UserOutlined,
   SettingOutlined,
@@ -17,7 +17,7 @@ interface UserOptionsProps {
   onProfile?: () => void;
 }
 
-export const UserOptions: React.FC<UserOptionsProps> = ({
+export const UserOptions: FC<UserOptionsProps> = ({
   userImage,
   userName = "User",
   userEmail,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -31,9 +31,6 @@ import {
 import { fileToDataUrl } from "../../core/services/file";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
-import UserOptions from "../components/UserOptions/UserOptions";
-import { logout } from "../../core/services/auth.service";
-
 export const AddCourse: React.FC = () => {
   const { Text } = Typography;
   const { courseId } = useParams<{ courseId: string }>();

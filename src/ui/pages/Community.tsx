@@ -1,9 +1,14 @@
-import React from "react";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import Card from "antd/es/card/Card";
 import { List, Input } from "antd";
 
-export const Community: React.FC = () => {
+type CommunityUser = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export const Community = () => {
   return (
     <AdminLayout>
       <Card>
@@ -11,7 +16,7 @@ export const Community: React.FC = () => {
           <h1>Community</h1>
           <Input placeholder="Rechercher un utilisateur" />
           <p>Utilisateurs inscrits récemment</p>
-          <List
+          <List<CommunityUser>
             itemLayout="horizontal"
             dataSource={[]}
             renderItem={(item) => (

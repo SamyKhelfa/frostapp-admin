@@ -1,9 +1,10 @@
-import { emptySplitApi } from "@/infra/http";
+import { ILoginPayload, ILoginResponse } from "@core/interfaces";
+import { emptySplitApi } from "@infra/http";
 
 export const authApi = emptySplitApi.injectEndpoints?.({
   endpoints: (builder) => ({
-    login: builder.mutation<string, { email: string; password: string }>({
-      query: (body) => ({
+    login: builder.mutation<ILoginResponse, ILoginPayload>({
+      query: (body: ILoginPayload) => ({
         body,
         method: "POST",
         url: "/auth/login",

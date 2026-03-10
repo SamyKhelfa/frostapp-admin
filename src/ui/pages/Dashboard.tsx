@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../../core/context/AuthContext";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { Card, Button } from "antd";
+import { Card } from "antd";
 import UserOptions from "../components/UserOptions/UserOptions";
 
 export default function Dashboard() {

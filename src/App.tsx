@@ -1,13 +1,11 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import AddCourse from "./ui/pages/AddCourse";
+import Community from "./ui/pages/Community";
+import CourseDetail from "./ui/pages/CourseDetail";
+import Courses from "./ui/pages/Courses";
+import Dashboard from "./ui/pages/Dashboard";
 import Login from "./ui/pages/Login";
 import Register from "./ui/pages/Register";
-import Dashboard from "./ui/pages/Dashboard";
-import Courses from "./ui/pages/Courses";
-import AddCourse from "./ui/pages/AddCourse";
-import CourseDetail from "./ui/pages/CourseDetail";
-import { ProtectedRoute } from "./infra/routes/ProtectedRoute";
-import Community from "./ui/pages/Community";
 import { Users } from "./ui/pages/Users";
 
 export default function App() {

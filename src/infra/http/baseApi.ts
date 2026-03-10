@@ -7,26 +7,44 @@ const prodUrl = "http://localhost:3000";
 
 const apiUrl = IS_DEV ? devUrl : prodUrl;
 
-const baseQueryWithReauth = (baseQueryOptions: any) => async (args: any, api; any, extraOptions: any): Promise<any> => {
-    const result: any = await fetchBaseQuery(baseQueryOptions)(
+
+const baseQueryWithReauth =
+  (baseQueryOptions: Parameters<typeof fetchBaseQuery>[0]) =>
+  async (
+    args: Parameters<ReturnType<typeof fetchBaseQuery>>[0],
+    api: Parameters<ReturnType<typeof fetchBaseQuery>>[1],
+    extraOptions: Parameters<ReturnType<typeof fetchBaseQuery>>[2],
+  ) => {
+    const result = await fetchBaseQuery(baseQueryOptions)(
       args,
       api,
       extraOptions,
     );
 
-    if(result?.error?.status === 401 || result?.error?.status === 403) {
-        localStorage.removeItem("auth-token")
+    const isAuthLogin =
+      typeof args === "object" &&
+      args !== null &&
+      "url" in args &&
+      (args as { url: string }).url.includes("/auth/login");
 
-        window.location.href = "/"
-        window.location.reload()
+    if (
+      !isAuthLogin &&
+      (result?.error?.status === 401 || result?.error?.status === 403)
+    ) {
+      localStorage.removeItem("auth-token");
+      window.location.href = "/";
+      window.location.reload();
     }
-}
+
+    return result;
+  };
+
 
 export const emptySplitApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth({
     baseUrl: apiUrl,
-    prepareHeadears: async (headers: Headers) => {
+    prepareHeaders: async (headers: Headers) => {
         try {
             const authToken = JSON.parse(
                 localStorage.getItem("auth-token") || ""
@@ -42,7 +60,7 @@ export const emptySplitApi = createApi({
         }
     }
   }),
-  endpoints: (builder) => ({}),
+  endpoints: () => ({}),
 });
 
 
