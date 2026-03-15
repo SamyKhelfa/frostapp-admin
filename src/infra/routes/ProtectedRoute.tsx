@@ -1,10 +1,36 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import AddCourse from "@ui/pages/AddCourse";
+import Community from "@ui/pages/Community";
+import CourseDetail from "@ui/pages/CourseDetail";
+import Courses from "@ui/pages/Courses";
+import Dashboard from "@ui/pages/Dashboard";
+import Login from "@ui/pages/Login";
+import { Users } from "@ui/pages/Users";
+import { Route, Routes } from "react-router-dom";
+import { useAuthContext } from "../../core/context/AuthContext";
 
-export function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const { user, loading } = React.useContext(AuthContext);
-  if (loading) return <div>Chargement...</div>;
-  if (!user || !user.isAdmin) return <Navigate to="/login" replace />;
-  return children;
+export function ProtectedRoute() {
+  const { user, isLogging } = useAuthContext();
+
+  const localStorageUser = localStorage.getItem("user");
+
+  if (isLogging && !localStorageUser) return <div>Chargement...</div>;
+  
+  if (!user && !localStorageUser) return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/*" element={<Login />} />
+    </Routes>
+  );
+  
+  return (
+    <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:courseId" element={<CourseDetail />} />
+        <Route path="/AddCourse" element={<AddCourse />} />
+        <Route path="/courses/edit/:courseId" element={<AddCourse />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/users" element={<Users />} />
+    </Routes>
+  );
 }

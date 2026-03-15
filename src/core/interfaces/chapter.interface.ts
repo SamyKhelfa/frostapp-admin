@@ -5,9 +5,11 @@ export interface IChapter {
   title: string;
   description: string;
   image: string;
+  images?: string[];
   status: boolean;
   position: number;
   lesson: ILesson;
   createdAt: string;
   updateAt: string;
+  subchapters?: IChapter[];
 }
