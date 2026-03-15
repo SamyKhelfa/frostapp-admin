@@ -7,7 +7,6 @@ const prodUrl = "http://localhost:3000";
 
 const apiUrl = IS_DEV ? devUrl : prodUrl;
 
-
 const baseQueryWithReauth =
   (baseQueryOptions: Parameters<typeof fetchBaseQuery>[0]) =>
   async (
@@ -32,7 +31,7 @@ const baseQueryWithReauth =
       (result?.error?.status === 401 || result?.error?.status === 403)
     ) {
       localStorage.removeItem("auth-token");
-      window.location.href = "/";
+      localStorage.removeItem("user");
       window.location.reload();
     }
 

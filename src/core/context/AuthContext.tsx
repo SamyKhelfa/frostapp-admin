@@ -1,6 +1,6 @@
-import { useLoginMutation } from "@core/api";
+import { useLoginMutation, useMeQuery } from "@core/api";
 import { ILoginPayload, IUser } from "@core/interfaces";
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 type Context = {
   user: IUser | null;
@@ -17,27 +17,43 @@ export const AuthContext = createContext<Context>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IUser | null>(null);
 
+  const hasToken = !!localStorage.getItem("auth-token");
+  const { data: userData, isLoading: isMeLoading, isSuccess: isMeSuccess } = useMeQuery(undefined, {
+    skip: !hasToken,
+  });
+
   const [loginMutation, { isLoading: isLogging }] = useLoginMutation();
+
+  useEffect(() => {
+    if (isMeSuccess && userData) {
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+    } else {
+      setUser(null);
+      localStorage.removeItem("user");
+    }
+  }, [isMeSuccess, userData, hasToken]);
 
   const handleLogin = async ({ email, password }: ILoginPayload) => {
     try {
-      const { authToken, user } = await loginMutation({ email, password }).unwrap();
-
-      localStorage.setItem("auth-token", authToken);
-
-      setUser(user);
+      const { authToken, user: userResponse } = await loginMutation({ email, password }).unwrap();
+      localStorage.setItem("auth-token", JSON.stringify(authToken));
+      localStorage.setItem("user", JSON.stringify(userResponse));
+      
+      setUser(userResponse);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const value = useMemo(() => {
-    return {
-      user,
-      isLogging,
-      handleLogin,  
-    }
-  }, [isLogging, user])
+  const value = useMemo(
+    () => ({
+      user: user,
+      isLogging: isLogging || isMeLoading,
+      handleLogin,
+    }),
+    [isLogging, isMeLoading, user]
+  );
 
   return (
     <AuthContext.Provider value={value}>

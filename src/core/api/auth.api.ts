@@ -1,8 +1,14 @@
-import { ILoginPayload, ILoginResponse } from "@core/interfaces";
+import { ILoginPayload, ILoginResponse, IUser } from "@core/interfaces";
 import { emptySplitApi } from "@infra/http";
 
 export const authApi = emptySplitApi.injectEndpoints?.({
   endpoints: (builder) => ({
+    me: builder.query<IUser, void>({
+      query: () => ({
+        url: "/auth/me",
+        method: "GET",
+      }),
+    }),
     login: builder.mutation<ILoginResponse, ILoginPayload>({
       query: (body: ILoginPayload) => ({
         body,
@@ -13,4 +19,4 @@ export const authApi = emptySplitApi.injectEndpoints?.({
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useMeQuery } = authApi;
