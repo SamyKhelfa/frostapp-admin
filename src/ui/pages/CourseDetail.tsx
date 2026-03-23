@@ -22,7 +22,7 @@ import AdminLayout from "../components/AdminLayout/AdminLayout";
 import {
   loadMockCourses,
   type MockCourse,
-} from "../../core/services/mockCourses";
+} from "../../core/mocks/course.mock";
 
 const { Title, Text } = Typography;
 

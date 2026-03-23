@@ -6,7 +6,7 @@ import {
   loadMockCourses,
   clearMockCourses,
   type MockCourse,
-} from "../../core/services/mockCourses";
+} from "../../core/mocks/course.mock";
 
 export default function Courses() {
   const navigate = useNavigate();

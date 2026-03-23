@@ -9,15 +9,12 @@ import { Route, Routes } from "react-router-dom";
 import { useAuthContext } from "../../core/context/AuthContext";
 
 export function ProtectedRoute() {
-  const { user, isLogging } = useAuthContext();
+  const { user } = useAuthContext();
 
   const localStorageUser = localStorage.getItem("user");
-
-  if (isLogging && !localStorageUser) return <div>Chargement...</div>;
   
   if (!user && !localStorageUser) return (
     <Routes>
-      <Route path="/" element={<Login />} />
       <Route path="/*" element={<Login />} />
     </Routes>
   );

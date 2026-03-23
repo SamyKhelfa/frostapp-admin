@@ -27,8 +27,7 @@ import {
   updateMockCourse,
   loadMockCourses,
   type MockLesson,
-} from "../../core/services/mockCourses";
-import { fileToDataUrl } from "../../core/services/file";
+} from "../../core/mocks/course.mock";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 export const AddCourse: React.FC = () => {
@@ -140,9 +139,7 @@ export const AddCourse: React.FC = () => {
         ? [chapters[chapterIndex].image as string]
         : []);
 
-    const uploaded = await Promise.all(
-      newFiles.map((file) => fileToDataUrl(file))
-    );
+    const uploaded = [""];
 
     const nextImages = [...existing, ...uploaded];
 

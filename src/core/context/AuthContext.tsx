@@ -1,17 +1,20 @@
 import { useLoginMutation, useMeQuery } from "@core/api";
 import { ILoginPayload, IUser } from "@core/interfaces";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { toast } from "react-toastify";
 
 type Context = {
   user: IUser | null;
   isLogging: boolean;
   handleLogin: (payload: ILoginPayload) => Promise<void>;
+  handleLogout: () => void;
 };
 
 export const AuthContext = createContext<Context>({
   user: null,
   isLogging: true,
-  handleLogin: async () => {}
+  handleLogin: async () => {},
+  handleLogout: () => {}
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loginMutation, { isLoading: isLogging }] = useLoginMutation();
 
   useEffect(() => {
-    if (isMeSuccess && userData) {
+    if (hasToken && isMeSuccess && userData) {
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
     } else {
@@ -41,9 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(userResponse));
       
       setUser(userResponse);
+      toast.success("Vous êtes maintenant connecté");
     } catch (error) {
       console.error(error);
+      toast.error("Erreur lors de la connexion, veuillez vérifier vos identifiants");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth-token");
+    localStorage.removeItem("user");
+    setUser(null);
+    toast.success("Vous êtes maintenant déconnecté");
   };
 
   const value = useMemo(
@@ -51,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: user,
       isLogging: isLogging || isMeLoading,
       handleLogin,
+      handleLogout,
     }),
     [isLogging, isMeLoading, user]
   );
