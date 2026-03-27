@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import { Layout, Menu, Card } from "antd";
 import { HomeOutlined, BookOutlined, TeamOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuthContext } from "@core/context/AuthContext";
+import { LanguageSwitcher } from "@ui/components/LanguageSwitcher";
 import flake from "../../../assets/flake.png";
 
 const { Sider, Content } = Layout;
@@ -11,6 +13,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { handleLogout } = useAuthContext();
+  const { t } = useTranslation();
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -26,10 +29,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 fontWeight: "bold",
               }}
             >
-              Backoffice
+              {t("layout.backoffice")}
               <img
                 src={flake}
-                alt="Snowflake"
+                alt={t("layout.snowflakeAlt")}
                 style={{ marginLeft: 8, height: 24 }}
               />
             </div>
@@ -41,24 +44,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               onClick={({ key }) => navigate(key)}
               items={[
                 {
-                  key: "/dashboard",
+                  key: "/",
                   icon: <HomeOutlined />,
-                  label: "Accueil",
+                  label: t("layout.home"),
                 },
                 {
                   key: "/courses",
                   icon: <BookOutlined />,
-                  label: "Courses",
+                  label: t("layout.courses"),
                 },
                 {
                   key: "/community",
                   icon: <TeamOutlined />,
-                  label: "Community",
+                  label: t("layout.community"),
                 },
                 {
                   key: "/users",
                   icon: <UserOutlined />,
-                  label: "Users",
+                  label: t("layout.users"),
                 }
               ]}
             />
@@ -71,7 +74,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 {
                   key: "logout",
                   icon: <LogoutOutlined />,
-                  label: "Déconnexion",
+                  label: t("layout.logout"),
                   danger: true,
                   onClick: () => {
                     handleLogout();
@@ -80,6 +83,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 },
               ]}
             />
+            <div style={{ padding: "0 16px 16px" }}>
+              <LanguageSwitcher style={{ width: "100%" }} />
+            </div>
           </div>
         </Sider>
       </Card>

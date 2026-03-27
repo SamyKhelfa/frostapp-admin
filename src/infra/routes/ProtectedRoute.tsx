@@ -4,6 +4,7 @@ import CourseDetail from "@ui/pages/CourseDetail";
 import Courses from "@ui/pages/Courses";
 import Dashboard from "@ui/pages/Dashboard";
 import Login from "@ui/pages/Login";
+import NotFound from "@ui/pages/NotFound";
 import { Users } from "@ui/pages/Users";
 import { Route, Routes } from "react-router-dom";
 import { useAuthContext } from "../../core/context/AuthContext";
@@ -28,6 +29,7 @@ export function ProtectedRoute() {
         <Route path="/courses/edit/:courseId" element={<AddCourse />} />
         <Route path="/community" element={<Community />} />
         <Route path="/users" element={<Users />} />
+        <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

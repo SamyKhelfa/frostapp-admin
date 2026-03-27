@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Form,
   Button,
@@ -32,6 +33,7 @@ import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 export const AddCourse: React.FC = () => {
   const { Text } = Typography;
+  const { t } = useTranslation();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -51,10 +53,10 @@ export const AddCourse: React.FC = () => {
         });
         setLessons(course.lessons || []);
       } else {
-        message.error("Cours introuvable");
+        message.error(t("addCourse.courseNotFound"));
       }
     }
-  }, [courseId, form]);
+  }, [courseId, form, t]);
 
   const handleAddLesson = () => {
     setLessons([
@@ -70,7 +72,7 @@ export const AddCourse: React.FC = () => {
 
   const handleDeleteLesson = (lessonIndex: number) => {
     setLessons(lessons.filter((_, i) => i !== lessonIndex));
-    message.success("Leçon supprimée");
+    message.success(t("addCourse.lessonDeleted"));
   };
 
   const handleLessonChange = (
@@ -110,7 +112,7 @@ export const AddCourse: React.FC = () => {
       chapters: next[lessonIndex].chapters.filter((_, i) => i !== chapterIndex),
     };
     setLessons(next);
-    message.success("Chapitre supprimé");
+    message.success(t("addCourse.chapterDeleted"));
   };
 
   const handleChapterChange = (
@@ -129,7 +131,7 @@ export const AddCourse: React.FC = () => {
   const handleAddChapterImages = async (
     lessonIndex: number,
     chapterIndex: number,
-    newFiles: File[]
+    _newFiles: File[]
   ) => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
@@ -176,7 +178,7 @@ export const AddCourse: React.FC = () => {
 
     next[lessonIndex] = { ...next[lessonIndex], chapters };
     setLessons(next);
-    message.success("Image retirée");
+    message.success(t("addCourse.imageRemoved"));
   };
 
   const onSubmit = async (values: any) => {
@@ -191,20 +193,26 @@ export const AddCourse: React.FC = () => {
         const updated = updateMockCourse(courseId, courseData);
         if (updated) {
           console.log("Mock course updated:", updated);
-          message.success("Cours modifié avec succès!");
+          message.success(t("addCourse.updatedSuccess"));
           navigate(`/courses/${courseId}`);
         } else {
-          message.error("Impossible de mettre à jour le cours");
+          message.error(t("addCourse.updateFailed"));
         }
       } else {
         const saved = saveMockCourse(courseData);
         console.log("Mock course saved:", saved);
-        message.success("Cours créé avec succès!");
+        message.success(t("addCourse.createdSuccess"));
         form.resetFields();
         setLessons([]);
       }
     } catch (error: any) {
-      message.error(error?.message || (isEditMode ? "Erreur lors de la modification du cours" : "Erreur lors de la création du cours"));
+      message.error(
+        error instanceof Error && error.message
+          ? error.message
+          : isEditMode
+            ? t("addCourse.editError")
+            : t("addCourse.createError")
+      );
     } finally {
       setLoading(false);
     }
@@ -217,7 +225,11 @@ export const AddCourse: React.FC = () => {
           title={
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <BookOutlined style={{ fontSize: 24 }} />
-              <span>{isEditMode ? "Modifier le cours" : "Créer un nouveau cours"}</span>
+              <span>
+                {isEditMode
+                  ? t("addCourse.titleEdit")
+                  : t("addCourse.titleCreate")}
+              </span>
             </div>
           }
           style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
@@ -230,38 +242,38 @@ export const AddCourse: React.FC = () => {
           >
             <div style={{ marginBottom: 24 }}>
               <h3 style={{ marginBottom: 16, color: "#1890ff" }}>
-                Informations du cours
+                {t("addCourse.sectionCourseInfo")}
               </h3>
 
               <Form.Item
-                label="Titre du cours"
+                label={t("addCourse.fieldCourseTitle")}
                 name="title"
                 rules={[
                   {
                     required: true,
-                    message: "Le titre du cours est obligatoire",
+                    message: t("addCourse.fieldCourseTitleRequired"),
                   },
                 ]}
               >
                 <Input
-                  placeholder="Ex: Introduction à la douche froide"
+                  placeholder={t("addCourse.fieldCourseTitlePlaceholder")}
                   size="large"
                   allowClear
                 />
               </Form.Item>
 
               <Form.Item
-                label="Description"
+                label={t("addCourse.fieldDescription")}
                 name="description"
                 rules={[
                   {
                     required: true,
-                    message: "La description du cours est obligatoire",
+                    message: t("addCourse.fieldDescriptionRequired"),
                   },
                 ]}
               >
                 <Input.TextArea
-                  placeholder="Entrez la description complète du cours..."
+                  placeholder={t("addCourse.fieldDescriptionPlaceholder")}
                   rows={4}
                   allowClear
                 />
@@ -280,20 +292,20 @@ export const AddCourse: React.FC = () => {
                 }}
               >
                 <h3 style={{ margin: 0, color: "#1890ff" }}>
-                  Leçons ({lessons.length})
+                  {t("addCourse.lessonsHeading", { count: lessons.length })}
                 </h3>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleAddLesson}
                 >
-                  Ajouter une leçon
+                  {t("addCourse.addLesson")}
                 </Button>
               </div>
 
               {lessons.length === 0 ? (
                 <Empty
-                  description="Aucune leçon ajoutée"
+                  description={t("addCourse.noLessons")}
                   style={{ padding: "40px 0" }}
                 />
               ) : (
@@ -310,10 +322,15 @@ export const AddCourse: React.FC = () => {
                         }}
                       >
                         <span>
-                          {lesson.title || `Leçon ${lessonIndex + 1}`}
+                          {lesson.title ||
+                            t("addCourse.lessonFallback", {
+                              number: lessonIndex + 1,
+                            })}
                         </span>
                         <Tag color="blue">
-                          {lesson.chapters.length} chapitres
+                          {t("addCourse.chaptersCount", {
+                            count: lesson.chapters.length,
+                          })}
                         </Tag>
                       </div>
                     ),
@@ -323,9 +340,9 @@ export const AddCourse: React.FC = () => {
                         style={{ width: "100%" }}
                         size="large"
                       >
-                        <Form.Item label="Titre de la leçon" required>
+                        <Form.Item label={t("addCourse.fieldLessonTitle")} required>
                           <Input
-                            placeholder="Titre de la leçon"
+                            placeholder={t("addCourse.fieldLessonTitlePlaceholder")}
                             value={lesson.title}
                             onChange={(e) =>
                               handleLessonChange(
@@ -336,9 +353,11 @@ export const AddCourse: React.FC = () => {
                             }
                           />
                         </Form.Item>
-                        <Form.Item label="Description de la leçon">
+                        <Form.Item label={t("addCourse.fieldLessonDescription")}>
                           <Input.TextArea
-                            placeholder="Description de la leçon"
+                            placeholder={t(
+                              "addCourse.fieldLessonDescriptionPlaceholder"
+                            )}
                             value={lesson.description}
                             onChange={(e) =>
                               handleLessonChange(
@@ -358,19 +377,21 @@ export const AddCourse: React.FC = () => {
                           }}
                         >
                           <h4 style={{ margin: 0 }}>
-                            Chapitres ({lesson.chapters.length})
+                            {t("addCourse.chaptersHeading", {
+                              count: lesson.chapters.length,
+                            })}
                           </h4>
                           <Button
                             type="dashed"
                             icon={<PlusOutlined />}
                             onClick={() => handleAddChapter(lessonIndex)}
                           >
-                            Ajouter un chapitre
+                            {t("addCourse.addChapter")}
                           </Button>
                         </div>
 
                         {lesson.chapters.length === 0 ? (
-                          <Empty description="Aucun chapitre" />
+                          <Empty description={t("addCourse.noChapters")} />
                         ) : (
                           <Collapse
                             items={lesson.chapters.map(
@@ -386,13 +407,15 @@ export const AddCourse: React.FC = () => {
                                   >
                                     <span>
                                       {chapter.title ||
-                                        `Chapitre ${chapterIndex + 1}`}
+                                        t("addCourse.chapterFallback", {
+                                          number: chapterIndex + 1,
+                                        })}
                                       {chapter.status && (
                                         <Tag
                                           color="green"
                                           style={{ marginLeft: 8 }}
                                         >
-                                          Actif
+                                          {t("addCourse.active")}
                                         </Tag>
                                       )}
                                     </span>
@@ -405,11 +428,13 @@ export const AddCourse: React.FC = () => {
                                     size="large"
                                   >
                                     <Form.Item
-                                      label="Titre du chapitre"
+                                      label={t("addCourse.fieldChapterTitle")}
                                       required
                                     >
                                       <Input
-                                        placeholder="Entrez le titre du chapitre"
+                                        placeholder={t(
+                                          "addCourse.fieldChapterTitlePlaceholder"
+                                        )}
                                         value={chapter.title || ""}
                                         onChange={(e) =>
                                           handleChapterChange(
@@ -422,9 +447,13 @@ export const AddCourse: React.FC = () => {
                                       />
                                     </Form.Item>
 
-                                    <Form.Item label="Description">
+                                    <Form.Item
+                                      label={t("addCourse.fieldChapterDescription")}
+                                    >
                                       <Input.TextArea
-                                        placeholder="Entrez la description du chapitre"
+                                        placeholder={t(
+                                          "addCourse.fieldChapterDescriptionPlaceholder"
+                                        )}
                                         rows={3}
                                         value={chapter.description || ""}
                                         onChange={(e) =>
@@ -438,7 +467,9 @@ export const AddCourse: React.FC = () => {
                                       />
                                     </Form.Item>
 
-                                    <Form.Item label="Images du chapitre">
+                                    <Form.Item
+                                      label={t("addCourse.fieldChapterImages")}
+                                    >
                                       <Space
                                         direction="vertical"
                                         style={{ width: "100%" }}
@@ -454,10 +485,12 @@ export const AddCourse: React.FC = () => {
                                                 chapterIndex,
                                                 [file]
                                               );
-                                              message.success("Image importée");
+                                              message.success(
+                                                t("addCourse.imageImported")
+                                              );
                                             } catch (err) {
                                               message.error(
-                                                "Impossible d'importer l'image"
+                                                t("addCourse.imageImportFailed")
                                               );
                                               console.error(err);
                                             }
@@ -465,7 +498,7 @@ export const AddCourse: React.FC = () => {
                                           }}
                                         >
                                           <Button icon={<UploadOutlined />}>
-                                            Ajouter des images
+                                            {t("addCourse.addImages")}
                                           </Button>
                                         </Upload>
 
@@ -496,7 +529,9 @@ export const AddCourse: React.FC = () => {
                                                   >
                                                     <img
                                                       src={img}
-                                                      alt="Prévisualisation"
+                                                      alt={t(
+                                                        "addCourse.previewAlt"
+                                                      )}
                                                       style={{
                                                         width: "100%",
                                                         height: "100%",
@@ -528,8 +563,7 @@ export const AddCourse: React.FC = () => {
                                             </Space>
                                           ) : (
                                             <Text type="secondary">
-                                              Aucune image sélectionnée pour ce
-                                              chapitre
+                                              {t("addCourse.noChapterImages")}
                                             </Text>
                                           );
                                         })()}
@@ -540,7 +574,7 @@ export const AddCourse: React.FC = () => {
                                       align="center"
                                     >
                                       <Form.Item
-                                        label="Position"
+                                        label={t("addCourse.position")}
                                         style={{ margin: 0 }}
                                       >
                                         <InputNumber
@@ -561,7 +595,7 @@ export const AddCourse: React.FC = () => {
                                       </Form.Item>
 
                                       <Form.Item
-                                        label="Statut"
+                                        label={t("addCourse.status")}
                                         style={{ margin: 0 }}
                                       >
                                         <Switch
@@ -590,7 +624,7 @@ export const AddCourse: React.FC = () => {
                                         )
                                       }
                                     >
-                                      Supprimer ce chapitre
+                                      {t("addCourse.deleteChapter")}
                                     </Button>
                                   </Space>
                                 ),
@@ -606,7 +640,7 @@ export const AddCourse: React.FC = () => {
                           onClick={() => handleDeleteLesson(lessonIndex)}
                           block
                         >
-                          Supprimer cette leçon
+                          {t("addCourse.deleteLesson")}
                         </Button>
                       </Space>
                     ),
@@ -625,10 +659,12 @@ export const AddCourse: React.FC = () => {
                 loading={loading}
                 style={{ minWidth: 150 }}
               >
-                {isEditMode ? "Modifier le cours" : "Créer le cours"}
+                {isEditMode
+                  ? t("addCourse.submitEdit")
+                  : t("addCourse.submitCreate")}
               </Button>
               <Button size="large">
-                <NavLink to="/courses">Annuler</NavLink>
+                <NavLink to="/courses">{t("addCourse.cancel")}</NavLink>
               </Button>
             </Space>
           </Form>

@@ -1,0 +1,158 @@
+{
+  "language": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "layout": {
+    "backoffice": "Backoffice",
+    "snowflakeAlt": "Snowflake",
+    "home": "Home",
+    "courses": "Courses",
+    "community": "Community",
+    "users": "Users",
+    "logout": "Log out"
+  },
+  "notFound": {
+    "title": "404",
+    "subtitle": "This page does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "dashboard": {
+    "title": "Admin dashboard"
+  },
+  "login": {
+    "title": "Admin login",
+    "email": "Email",
+    "password": "Password",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email is invalid",
+    "passwordRequired": "Please enter your password",
+    "placeholderEmail": "your-name@gmail.com",
+    "passwordMask": "***********",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "connectionError": "Connection error"
+  },
+  "register": {
+    "title": "Create an admin account",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "placeholderName": "Name",
+    "placeholderEmail": "Email",
+    "placeholderPassword": "Password",
+    "submit": "Create",
+    "submitting": "Creating…",
+    "error": "Registration error",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "notImplemented": "Registration is not available"
+  },
+  "users": {
+    "title": "Users",
+    "welcome": "Welcome to the Users page"
+  },
+  "community": {
+    "title": "Community",
+    "searchPlaceholder": "Search for a user",
+    "recentUsers": "Recently registered users"
+  },
+  "courses": {
+    "titleMock": "Courses (mock)",
+    "refresh": "Refresh",
+    "clearMock": "Clear mock data",
+    "addNew": "+ Add new course",
+    "emptyMock": "No mock courses",
+    "lessons_one": "{{count}} lesson",
+    "lessons_other": "{{count}} lessons",
+    "chapters_one": "{{count}} chapter",
+    "chapters_other": "{{count}} chapters",
+    "createdAt": "Created on {{date}}"
+  },
+  "addCourse": {
+    "courseNotFound": "Course not found",
+    "lessonDeleted": "Lesson deleted",
+    "chapterDeleted": "Chapter deleted",
+    "imageRemoved": "Image removed",
+    "updatedSuccess": "Course updated successfully!",
+    "updateFailed": "Could not update the course",
+    "createdSuccess": "Course created successfully!",
+    "editError": "Error while updating the course",
+    "createError": "Error while creating the course",
+    "imageImported": "Image imported",
+    "imageImportFailed": "Could not import the image",
+    "titleEdit": "Edit course",
+    "titleCreate": "Create a new course",
+    "sectionCourseInfo": "Course information",
+    "fieldCourseTitle": "Course title",
+    "fieldCourseTitleRequired": "Course title is required",
+    "fieldCourseTitlePlaceholder": "e.g. Introduction to cold showers",
+    "fieldDescription": "Description",
+    "fieldDescriptionRequired": "Course description is required",
+    "fieldDescriptionPlaceholder": "Enter the full course description…",
+    "lessonsHeading": "Lessons ({{count}})",
+    "addLesson": "Add lesson",
+    "noLessons": "No lessons added",
+    "lessonFallback": "Lesson {{number}}",
+    "chaptersCount_one": "{{count}} chapter",
+    "chaptersCount_other": "{{count}} chapters",
+    "fieldLessonTitle": "Lesson title",
+    "fieldLessonTitlePlaceholder": "Lesson title",
+    "fieldLessonDescription": "Lesson description",
+    "fieldLessonDescriptionPlaceholder": "Lesson description",
+    "chaptersHeading": "Chapters ({{count}})",
+    "addChapter": "Add chapter",
+    "noChapters": "No chapters",
+    "chapterFallback": "Chapter {{number}}",
+    "active": "Active",
+    "fieldChapterTitle": "Chapter title",
+    "fieldChapterTitlePlaceholder": "Enter the chapter title",
+    "fieldChapterDescription": "Description",
+    "fieldChapterDescriptionPlaceholder": "Enter the chapter description",
+    "fieldChapterImages": "Chapter images",
+    "addImages": "Add images",
+    "previewAlt": "Preview",
+    "noChapterImages": "No images selected for this chapter",
+    "position": "Position",
+    "status": "Status",
+    "deleteChapter": "Delete this chapter",
+    "deleteLesson": "Delete this lesson",
+    "submitEdit": "Update course",
+    "submitCreate": "Create course",
+    "cancel": "Cancel"
+  },
+  "courseDetail": {
+    "backToCourses": "Back to courses",
+    "notFound": "Course not found",
+    "edit": "Edit",
+    "description": "Description",
+    "createdAt": "Created at",
+    "id": "ID",
+    "contentTitle": "Course content",
+    "noLessons": "No lessons in this course",
+    "lessonTitle": "Lesson {{number}}: {{title}}",
+    "chaptersInLesson_one": "{{count}} chapter",
+    "chaptersInLesson_other": "{{count}} chapters",
+    "noChaptersInLesson": "No chapters in this lesson",
+    "chapterTitle": "Chapter {{number}}: {{title}}",
+    "positionLabel": "Position: {{value}}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "descriptionLabel": "Description:",
+    "imagesLabel": "Images ({{count}}):",
+    "imageAlt": "Image {{number}}",
+    "noChapterImages": "No images for this chapter"
+  },
+  "auth": {
+    "toastLoginSuccess": "You are now signed in",
+    "toastLoginError": "Sign-in failed, please check your credentials",
+    "toastLogoutSuccess": "You are now signed out"
+  },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
+  "errors": {
+    "themeProvider": "useTheme must be used within ThemeProvider"
+  }
+}

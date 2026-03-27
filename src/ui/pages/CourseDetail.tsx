@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   Space,
@@ -29,7 +30,10 @@ const { Title, Text } = Typography;
 export default function CourseDetail() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [course, setCourse] = useState<MockCourse | null>(null);
+
+  const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
 
   useEffect(() => {
     const courses = loadMockCourses();
@@ -45,9 +49,9 @@ export default function CourseDetail() {
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate("/courses")}
           >
-            Retour aux cours
+            {t("courseDetail.backToCourses")}
           </Button>
-          <Empty description="Cours introuvable" />
+          <Empty description={t("courseDetail.notFound")} />
         </Space>
       </AdminLayout>
     );
@@ -61,7 +65,7 @@ export default function CourseDetail() {
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate("/courses")}
           >
-            Retour aux cours
+            {t("courseDetail.backToCourses")}
           </Button>
 
           <Card
@@ -75,38 +79,45 @@ export default function CourseDetail() {
             }
             extra={
               <Space>
-                <Tag color="purple">{course.lessons?.length || 0} leçon(s)</Tag>
+                <Tag color="purple">
+                  {t("courses.lessons", {
+                    count: course.lessons?.length || 0,
+                  })}
+                </Tag>
                 <Tag color="blue">
-                  {(course.lessons || []).reduce(
-                    (acc, l) => acc + (l.chapters?.length || 0),
-                    0
-                  )}{" "}
-                  chapitre(s)
+                  {t("courses.chapters", {
+                    count: (course.lessons || []).reduce(
+                      (acc, l) => acc + (l.chapters?.length || 0),
+                      0
+                    ),
+                  })}
                 </Tag>
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => navigate(`/courses/edit/${course.id}`)}
                 >
-                  Modifier
+                  {t("courseDetail.edit")}
                 </Button>
               </Space>
             }
           >
             <Descriptions column={1} bordered>
-              <Descriptions.Item label="Description">
+              <Descriptions.Item label={t("courseDetail.description")}>
                 {course.description}
               </Descriptions.Item>
-              <Descriptions.Item label="Date de création">
-                {new Date(course.createdAt).toLocaleString("fr-FR")}
+              <Descriptions.Item label={t("courseDetail.createdAt")}>
+                {new Date(course.createdAt).toLocaleString(dateLocale)}
               </Descriptions.Item>
-              <Descriptions.Item label="ID">{course.id}</Descriptions.Item>
+              <Descriptions.Item label={t("courseDetail.id")}>
+                {course.id}
+              </Descriptions.Item>
             </Descriptions>
           </Card>
 
-          <Card title="Contenu du cours">
+          <Card title={t("courseDetail.contentTitle")}>
             {!course.lessons || course.lessons.length === 0 ? (
-              <Empty description="Aucune leçon dans ce cours" />
+              <Empty description={t("courseDetail.noLessons")} />
             ) : (
               <Collapse
                 accordion
@@ -122,10 +133,15 @@ export default function CourseDetail() {
                       }}
                     >
                       <Text strong>
-                        Leçon {lessonIndex + 1}: {lesson.title}
+                        {t("courseDetail.lessonTitle", {
+                          number: lessonIndex + 1,
+                          title: lesson.title,
+                        })}
                       </Text>
                       <Tag color="blue">
-                        {lesson.chapters?.length || 0} chapitre(s)
+                        {t("courseDetail.chaptersInLesson", {
+                          count: lesson.chapters?.length || 0,
+                        })}
                       </Tag>
                     </div>
                   ),
@@ -142,7 +158,9 @@ export default function CourseDetail() {
                       )}
 
                       {!lesson.chapters || lesson.chapters.length === 0 ? (
-                        <Empty description="Aucun chapitre dans cette leçon" />
+                        <Empty
+                          description={t("courseDetail.noChaptersInLesson")}
+                        />
                       ) : (
                         <Collapse
                           size="small"
@@ -159,26 +177,31 @@ export default function CourseDetail() {
                                   }}
                                 >
                                   <Text>
-                                    Chapitre {chapterIndex + 1}: {chapter.title}
+                                    {t("courseDetail.chapterTitle", {
+                                      number: chapterIndex + 1,
+                                      title: chapter.title,
+                                    })}
                                   </Text>
                                   <Space>
                                     <Tag color="cyan">
-                                      Position:{" "}
-                                      {chapter.position || chapterIndex + 1}
+                                      {t("courseDetail.positionLabel", {
+                                        value:
+                                          chapter.position || chapterIndex + 1,
+                                      })}
                                     </Tag>
                                     {chapter.status ? (
                                       <Tag
                                         icon={<CheckCircleOutlined />}
                                         color="success"
                                       >
-                                        Actif
+                                        {t("courseDetail.active")}
                                       </Tag>
                                     ) : (
                                       <Tag
                                         icon={<CloseCircleOutlined />}
                                         color="default"
                                       >
-                                        Inactif
+                                        {t("courseDetail.inactive")}
                                       </Tag>
                                     )}
                                   </Space>
@@ -192,7 +215,9 @@ export default function CourseDetail() {
                                 >
                                   {chapter.description && (
                                     <div>
-                                      <Text strong>Description:</Text>
+                                      <Text strong>
+                                        {t("courseDetail.descriptionLabel")}
+                                      </Text>
                                       <div style={{ marginTop: 8 }}>
                                         <Text>{chapter.description}</Text>
                                       </div>
@@ -211,7 +236,9 @@ export default function CourseDetail() {
                                     return chapterImages.length > 0 ? (
                                       <div>
                                         <Text strong>
-                                          Images ({chapterImages.length}):
+                                          {t("courseDetail.imagesLabel", {
+                                            count: chapterImages.length,
+                                          })}
                                         </Text>
                                         <div style={{ marginTop: 12 }}>
                                           <Image.PreviewGroup>
@@ -221,9 +248,12 @@ export default function CourseDetail() {
                                                   <Image
                                                     key={`${lesson.id}-${chapterIndex}-img-${imgIndex}`}
                                                     src={img}
-                                                    alt={`Image ${
-                                                      imgIndex + 1
-                                                    }`}
+                                                    alt={t(
+                                                      "courseDetail.imageAlt",
+                                                      {
+                                                        number: imgIndex + 1,
+                                                      }
+                                                    )}
                                                     width={150}
                                                     height={100}
                                                     style={{
@@ -239,7 +269,7 @@ export default function CourseDetail() {
                                       </div>
                                     ) : (
                                       <Text type="secondary" italic>
-                                        Aucune image pour ce chapitre
+                                        {t("courseDetail.noChapterImages")}
                                       </Text>
                                     );
                                   })()}

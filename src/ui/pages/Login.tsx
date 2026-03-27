@@ -1,14 +1,16 @@
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Button, Card, Form, Input, Space, Typography } from "antd";
 import { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../core/context/AuthContext";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 const { Title, Text } = Typography;
 
 export default function Login() {
   const [form] = Form.useForm();
-
   const { handleLogin } = useContext(AuthContext);
+  const { t } = useTranslation();
 
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,10 +26,10 @@ export default function Login() {
         email: formData.email,
         password: formData.password,
       });
-
-      // nav("/dashboard");
-    } catch (error: any) {
-      setErr(error?.message || "Erreur de connexion");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : t("login.connectionError");
+      setErr(message || t("login.connectionError"));
     } finally {
       setLoading(false);
     }
@@ -42,8 +44,12 @@ export default function Login() {
         alignItems: "center",
         justifyContent: "center",
         background: "#f5f5f5",
+        position: "relative",
       }}
     >
+      <div style={{ position: "absolute", top: 24, right: 24 }}>
+        <LanguageSwitcher />
+      </div>
       <Card
         style={{
           width: 420,
@@ -54,30 +60,30 @@ export default function Login() {
       >
         <Space direction="vertical" style={{ width: "100%" }} size="large">
           <Title level={3} style={{ textAlign: "center", margin: 0 }}>
-            Admin Login
+            {t("login.title")}
           </Title>
 
           <Form form={form} onFinish={onSubmit} layout="vertical">
             <Form.Item
-              label="Email"
+              label={t("login.email")}
               name="email"
               rules={[
-                { required: true, message: "L'email est obligatoire" },
-                { type: "email", message: "L'email est invalide" },
+                { required: true, message: t("login.emailRequired") },
+                { type: "email", message: t("login.emailInvalid") },
               ]}
             >
-              <Input placeholder="your-name@gmail.com" size="large" />
+              <Input placeholder={t("login.placeholderEmail")} size="large" />
             </Form.Item>
 
             <Form.Item
-              label="Password"
+              label={t("login.password")}
               name="password"
               rules={[
-                { required: true, message: "Veuillez saisir le mot de passe" },
+                { required: true, message: t("login.passwordRequired") },
               ]}
             >
               <Input.Password
-                placeholder="***********"
+                placeholder={t("login.passwordMask")}
                 size="large"
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
@@ -93,7 +99,7 @@ export default function Login() {
               disabled={loading}
               style={{ marginTop: 8 }}
             >
-              {loading ? "Connexion..." : "Se connecter"}
+              {loading ? t("login.submitting") : t("login.submit")}
             </Button>
           </Form>
 

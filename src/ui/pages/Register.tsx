@@ -1,30 +1,33 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../core/context/AuthContext";
 import { Input, Button, Typography, Form, Card, Space } from "antd";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 export default function Register() {
   const { register } = useContext(AuthContext);
   const nav = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish = async () => {
     setErr(null);
     setLoading(true);
     try {
       const res = await register({ email, password, name });
-      const user = res.user ?? res;
-      if (!user?.isAdmin) {
-        // depending on backend you may need to promote account
+      const user = (res as { user?: unknown })?.user ?? res;
+      if (user && typeof user === "object" && "isAdmin" in user && !(user as { isAdmin?: boolean }).isAdmin) {
       }
-      nav("/dashboard");
-    } catch (error: any) {
-      setErr(error?.message || "Erreur inscription");
+      nav("/");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : t("register.error");
+      setErr(message || t("register.error"));
     } finally {
       setLoading(false);
     }
@@ -39,8 +42,12 @@ export default function Register() {
         alignItems: "center",
         justifyContent: "center",
         background: "#f5f5f5",
+        position: "relative",
       }}
     >
+      <div style={{ position: "absolute", top: 24, right: 24 }}>
+        <LanguageSwitcher />
+      </div>
       <Card
         style={{
           width: 420,
@@ -58,39 +65,40 @@ export default function Register() {
             level={3}
             style={{ textAlign: "center", margin: 0 }}
           >
-            Créer un compte admin
+            {t("register.title")}
           </Typography.Title>
-          <Form layout="vertical" onFinish={onSubmit}>
-            <Form.Item label="Nom" required>
+          <Form layout="vertical" onFinish={onFinish}>
+            <Form.Item label={t("register.name")} required>
               <Input
-                placeholder="Nom"
+                placeholder={t("register.placeholderName")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </Form.Item>
-            <Form.Item label="Email" required>
+            <Form.Item label={t("register.email")} required>
               <Input
-                placeholder="Email"
+                placeholder={t("register.placeholderEmail")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Item>
-            <Form.Item label="Mot de passe" required>
+            <Form.Item label={t("register.password")} required>
               <Input.Password
-                placeholder="Mot de passe"
+                placeholder={t("register.placeholderPassword")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" block disabled={loading}>
-                {loading ? "Création..." : "Créer"}
+                {loading ? t("register.submitting") : t("register.submit")}
               </Button>
             </Form.Item>
           </Form>
           {err && <div style={{ color: "red", marginTop: 8 }}>{err}</div>}
           <div style={{ textAlign: "center" }}>
-            Déjà un compte ? <a href="/login">Connectez-vous</a>
+            {t("register.hasAccount")}{" "}
+            <a href="/login">{t("register.signIn")}</a>
           </div>
         </Space>
       </Card>

@@ -1,6 +1,7 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { Button, Card, Empty, List, Space, Tag } from "antd";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import {
   loadMockCourses,
@@ -10,6 +11,7 @@ import {
 
 export default function Courses() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [courses, setCourses] = useState<MockCourse[]>([]);
 
   useEffect(() => {
@@ -21,28 +23,30 @@ export default function Courses() {
     setCourses([]);
   };
 
+  const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
+
   return (
     <AdminLayout>
       <Space direction="vertical" style={{ width: "100%" }} size="large">
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
-          <h1 style={{ margin: 0 }}>Courses (mock)</h1>
+          <h1 style={{ margin: 0 }}>{t("courses.titleMock")}</h1>
           <Space>
             <Button onClick={() => setCourses(loadMockCourses())}>
-              Refresh
+              {t("courses.refresh")}
             </Button>
             <Button danger onClick={handleClear}>
-              Clear mock data
+              {t("courses.clearMock")}
             </Button>
             <Button type="primary">
               <Link to="/AddCourse" style={{ color: "white" }}>
-                + Add New Course
+                {t("courses.addNew")}
               </Link>
             </Button>
           </Space>
         </Space>
 
         {courses.length === 0 ? (
-          <Empty description="Aucun cours mock" />
+          <Empty description={t("courses.emptyMock")} />
         ) : (
           <List
             grid={{ gutter: 16, column: 2 }}
@@ -57,21 +61,28 @@ export default function Courses() {
                   extra={
                     <Space>
                       <Tag color="purple">
-                        {course.lessons?.length || 0} leçon(s)
+                        {t("courses.lessons", {
+                          count: course.lessons?.length || 0,
+                        })}
                       </Tag>
                       <Tag color="blue">
-                        {(course.lessons || []).reduce(
-                          (acc, l) => acc + (l.chapters?.length || 0),
-                          0
-                        )}{" "}
-                        chapitre(s)
+                        {t("courses.chapters", {
+                          count: (course.lessons || []).reduce(
+                            (acc, l) => acc + (l.chapters?.length || 0),
+                            0
+                          ),
+                        })}
                       </Tag>
                     </Space>
                   }
                 >
                   <p>{course.description}</p>
                   <p style={{ color: "#888", fontSize: 12 }}>
-                    Créé le {new Date(course.createdAt).toLocaleString()}
+                    {t("courses.createdAt", {
+                      date: new Date(course.createdAt).toLocaleString(
+                        dateLocale
+                      ),
+                    })}
                   </p>
                 </Card>
               </List.Item>

@@ -1,20 +1,25 @@
 import { useLoginMutation, useMeQuery } from "@core/api";
+import { i18n } from "@core/i18n/i18n";
 import { ILoginPayload, IUser } from "@core/interfaces";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "react-toastify";
+
+type RegisterPayload = { email: string; password: string; name: string };
 
 type Context = {
   user: IUser | null;
   isLogging: boolean;
   handleLogin: (payload: ILoginPayload) => Promise<void>;
   handleLogout: () => void;
+  register: (payload: RegisterPayload) => Promise<unknown>;
 };
 
 export const AuthContext = createContext<Context>({
   user: null,
   isLogging: true,
   handleLogin: async () => {},
-  handleLogout: () => {}
+  handleLogout: () => {},
+  register: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -44,10 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(userResponse));
       
       setUser(userResponse);
-      toast.success("Vous êtes maintenant connecté");
+      toast.success(i18n.t("auth.toastLoginSuccess"));
     } catch (error) {
       console.error(error);
-      toast.error("Erreur lors de la connexion, veuillez vérifier vos identifiants");
+      toast.error(i18n.t("auth.toastLoginError"));
     }
   };
 
@@ -55,8 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("auth-token");
     localStorage.removeItem("user");
     setUser(null);
-    toast.success("Vous êtes maintenant déconnecté");
+    toast.success(i18n.t("auth.toastLogoutSuccess"));
   };
+
+  const register = useCallback(async (_payload: RegisterPayload) => {
+    throw new Error(i18n.t("register.notImplemented"));
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -64,8 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLogging: isLogging || isMeLoading,
       handleLogin,
       handleLogout,
+      register,
     }),
-    [isLogging, isMeLoading, user]
+    [isLogging, isMeLoading, user, register]
   );
 
   return (

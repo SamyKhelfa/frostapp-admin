@@ -1,0 +1,158 @@
+{
+  "language": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "layout": {
+    "backoffice": "Backoffice",
+    "snowflakeAlt": "Flocon",
+    "home": "Accueil",
+    "courses": "Cours",
+    "community": "Communauté",
+    "users": "Utilisateurs",
+    "logout": "Déconnexion"
+  },
+  "notFound": {
+    "title": "404",
+    "subtitle": "Cette page n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "dashboard": {
+    "title": "Tableau de bord admin"
+  },
+  "login": {
+    "title": "Connexion admin",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "emailRequired": "L'e-mail est obligatoire",
+    "emailInvalid": "L'e-mail est invalide",
+    "passwordRequired": "Veuillez saisir le mot de passe",
+    "placeholderEmail": "votre-nom@gmail.com",
+    "passwordMask": "***********",
+    "submit": "Se connecter",
+    "submitting": "Connexion…",
+    "connectionError": "Erreur de connexion"
+  },
+  "register": {
+    "title": "Créer un compte admin",
+    "name": "Nom",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "placeholderName": "Nom",
+    "placeholderEmail": "E-mail",
+    "placeholderPassword": "Mot de passe",
+    "submit": "Créer",
+    "submitting": "Création…",
+    "error": "Erreur d'inscription",
+    "hasAccount": "Déjà un compte ?",
+    "signIn": "Connectez-vous",
+    "notImplemented": "L'inscription n'est pas disponible"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "welcome": "Bienvenue sur la page Utilisateurs"
+  },
+  "community": {
+    "title": "Communauté",
+    "searchPlaceholder": "Rechercher un utilisateur",
+    "recentUsers": "Utilisateurs inscrits récemment"
+  },
+  "courses": {
+    "titleMock": "Cours (mock)",
+    "refresh": "Actualiser",
+    "clearMock": "Effacer les données mock",
+    "addNew": "+ Ajouter un cours",
+    "emptyMock": "Aucun cours mock",
+    "lessons_one": "{{count}} leçon",
+    "lessons_other": "{{count}} leçons",
+    "chapters_one": "{{count}} chapitre",
+    "chapters_other": "{{count}} chapitres",
+    "createdAt": "Créé le {{date}}"
+  },
+  "addCourse": {
+    "courseNotFound": "Cours introuvable",
+    "lessonDeleted": "Leçon supprimée",
+    "chapterDeleted": "Chapitre supprimé",
+    "imageRemoved": "Image retirée",
+    "updatedSuccess": "Cours modifié avec succès !",
+    "updateFailed": "Impossible de mettre à jour le cours",
+    "createdSuccess": "Cours créé avec succès !",
+    "editError": "Erreur lors de la modification du cours",
+    "createError": "Erreur lors de la création du cours",
+    "imageImported": "Image importée",
+    "imageImportFailed": "Impossible d'importer l'image",
+    "titleEdit": "Modifier le cours",
+    "titleCreate": "Créer un nouveau cours",
+    "sectionCourseInfo": "Informations du cours",
+    "fieldCourseTitle": "Titre du cours",
+    "fieldCourseTitleRequired": "Le titre du cours est obligatoire",
+    "fieldCourseTitlePlaceholder": "Ex. : Introduction à la douche froide",
+    "fieldDescription": "Description",
+    "fieldDescriptionRequired": "La description du cours est obligatoire",
+    "fieldDescriptionPlaceholder": "Entrez la description complète du cours…",
+    "lessonsHeading": "Leçons ({{count}})",
+    "addLesson": "Ajouter une leçon",
+    "noLessons": "Aucune leçon ajoutée",
+    "lessonFallback": "Leçon {{number}}",
+    "chaptersCount_one": "{{count}} chapitre",
+    "chaptersCount_other": "{{count}} chapitres",
+    "fieldLessonTitle": "Titre de la leçon",
+    "fieldLessonTitlePlaceholder": "Titre de la leçon",
+    "fieldLessonDescription": "Description de la leçon",
+    "fieldLessonDescriptionPlaceholder": "Description de la leçon",
+    "chaptersHeading": "Chapitres ({{count}})",
+    "addChapter": "Ajouter un chapitre",
+    "noChapters": "Aucun chapitre",
+    "chapterFallback": "Chapitre {{number}}",
+    "active": "Actif",
+    "fieldChapterTitle": "Titre du chapitre",
+    "fieldChapterTitlePlaceholder": "Entrez le titre du chapitre",
+    "fieldChapterDescription": "Description",
+    "fieldChapterDescriptionPlaceholder": "Entrez la description du chapitre",
+    "fieldChapterImages": "Images du chapitre",
+    "addImages": "Ajouter des images",
+    "previewAlt": "Prévisualisation",
+    "noChapterImages": "Aucune image sélectionnée pour ce chapitre",
+    "position": "Position",
+    "status": "Statut",
+    "deleteChapter": "Supprimer ce chapitre",
+    "deleteLesson": "Supprimer cette leçon",
+    "submitEdit": "Modifier le cours",
+    "submitCreate": "Créer le cours",
+    "cancel": "Annuler"
+  },
+  "courseDetail": {
+    "backToCourses": "Retour aux cours",
+    "notFound": "Cours introuvable",
+    "edit": "Modifier",
+    "description": "Description",
+    "createdAt": "Date de création",
+    "id": "ID",
+    "contentTitle": "Contenu du cours",
+    "noLessons": "Aucune leçon dans ce cours",
+    "lessonTitle": "Leçon {{number}} : {{title}}",
+    "chaptersInLesson_one": "{{count}} chapitre",
+    "chaptersInLesson_other": "{{count}} chapitres",
+    "noChaptersInLesson": "Aucun chapitre dans cette leçon",
+    "chapterTitle": "Chapitre {{number}} : {{title}}",
+    "positionLabel": "Position : {{value}}",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "descriptionLabel": "Description :",
+    "imagesLabel": "Images ({{count}}) :",
+    "imageAlt": "Image {{number}}",
+    "noChapterImages": "Aucune image pour ce chapitre"
+  },
+  "auth": {
+    "toastLoginSuccess": "Vous êtes maintenant connecté",
+    "toastLoginError": "Erreur lors de la connexion, veuillez vérifier vos identifiants",
+    "toastLogoutSuccess": "Vous êtes maintenant déconnecté"
+  },
+  "theme": {
+    "light": "Mode clair",
+    "dark": "Mode sombre"
+  },
+  "errors": {
+    "themeProvider": "useTheme doit être utilisé dans un ThemeProvider"
+  }
+}

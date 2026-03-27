@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { i18n } from "@core/i18n/i18n";
 
 interface ThemeContextType {
   isDark: boolean;
@@ -33,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
+    throw new Error(i18n.t("errors.themeProvider"));
   }
   return context;
 };
