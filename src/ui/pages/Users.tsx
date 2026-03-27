@@ -5,11 +5,22 @@ import { UsersTableSkeleton } from "../components/user/UsersTableSkeleton";
 import Card from "antd/es/card/Card";
 import { Skeleton, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export const Users: React.FC = () => {
-  const { data: users, isLoading } = useGetUsersQuery();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const { data, isLoading } = useGetUsersQuery({
+    page,
+    limit: pageSize,
+    enablePagination: true,
+  });
+
+  const users = data?.data;
+  const total = data?.total ?? 0;
+
   const { t, i18n } = useTranslation();
 
   const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
@@ -102,15 +113,21 @@ export const Users: React.FC = () => {
                 header: { cell: { whiteSpace: "nowrap" } },
               }}
               pagination={{
-                pageSize: 10,
+                current: page,
+                pageSize,
+                total,
                 showSizeChanger: true,
                 pageSizeOptions: [10, 20, 50],
-                showTotal: (total, range) =>
+                showTotal: (totalCount, range) =>
                   t("users.paginationTotal", {
                     start: range[0],
                     end: range[1],
-                    total,
+                    total: totalCount,
                   }),
+                onChange: (nextPage, nextPageSize) => {
+                  setPage(nextPage);
+                  setPageSize(nextPageSize);
+                },
               }}
             />
           </div>
