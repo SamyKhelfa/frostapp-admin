@@ -32,7 +32,7 @@ const baseQueryWithReauth =
     ) {
       localStorage.removeItem("auth-token");
       localStorage.removeItem("user");
-      window.location.reload();
+      // window.location.reload();
     }
 
     return result;

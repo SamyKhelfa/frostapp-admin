@@ -50,7 +50,19 @@
   },
   "users": {
     "title": "Utilisateurs",
-    "welcome": "Bienvenue sur la page Utilisateurs"
+    "welcome": "Bienvenue sur la page Utilisateurs",
+    "colId": "ID",
+    "colName": "Nom",
+    "colEmail": "E-mail",
+    "colRole": "Rôle",
+    "colActive": "Actif",
+    "colCreatedAt": "Créé le",
+    "colUpdatedAt": "Modifié le",
+    "roleAdmin": "Administrateur",
+    "roleUser": "Utilisateur",
+    "activeYes": "Oui",
+    "activeNo": "Non",
+    "paginationTotal": "{{start}}–{{end}} sur {{total}} utilisateurs"
   },
   "community": {
     "title": "Communauté",

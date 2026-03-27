@@ -4,8 +4,10 @@ export interface IUser {
   id: number;
   email: string;
   name: string;
-  password: string;
+  password?: string;
+  role?: string;
+  active?: boolean;
   createdAt: string;
   updatedAt: string;
-  lessons: ILesson[];
+  lessons?: ILesson[];
 }

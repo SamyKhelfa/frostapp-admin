@@ -50,7 +50,19 @@
   },
   "users": {
     "title": "Users",
-    "welcome": "Welcome to the Users page"
+    "welcome": "Welcome to the Users page",
+    "colId": "ID",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "colActive": "Active",
+    "colCreatedAt": "Created",
+    "colUpdatedAt": "Updated",
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "activeYes": "Yes",
+    "activeNo": "No",
+    "paginationTotal": "{{start}}–{{end}} of {{total}} users"
   },
   "community": {
     "title": "Community",
