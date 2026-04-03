@@ -1,14 +1,10 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { Button, Card, Empty, List, Space, Tag } from "antd";
-import React, { useEffect, useState } from "react";
+import { Card, Table } from "antd";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  useGetLessonsQuery,
-  useGetLessonByIdQuery,
-} from "@core/api/lesson.api";
+import { useGetLessonsQuery } from "@core/api/lesson.api";
 import { ColumnsType } from "antd/es/table";
-import { IChapter, ILesson } from "@core/interfaces";
+import { ILesson } from "@core/interfaces";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
 
 export const Courses: React.FC = () => {
@@ -24,7 +20,6 @@ export const Courses: React.FC = () => {
   const courses = data?.data ?? [];
   const total = data?.total ?? 0;
 
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
   const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
@@ -75,19 +70,36 @@ export const Courses: React.FC = () => {
         {isLoading ? (
           <LessonsTableSkeleton />
         ) : (
-          <List
-            dataSource={courses}
-            renderItem={(course) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={
-                    <Link to={`/courses/${course.id}`}>{course.title}</Link>
-                  }
-                  description={course.description}
-                />
-              </List.Item>
-            )}
-          />
+          <div>
+            <h1>{t("courses.title")}</h1>
+            <Table<ILesson>
+              rowKey="id"
+              columns={columns}
+              dataSource={courses ?? []}
+              scroll={{ x: "max-content" }}
+              styles={{
+                body: { cell: { whiteSpace: "nowrap" } },
+                header: { cell: { whiteSpace: "nowrap" } },
+              }}
+              pagination={{
+                current: page,
+                pageSize,
+                total,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "10", "20", "50"],
+                showTotal: (totalCount: number, range: [number, number]) =>
+                  t("courses.paginationTotal", {
+                    start: range[0],
+                    end: range[1],
+                    total: totalCount,
+                  }),
+                onChange: (newPage: number, newPageSize: number) => {
+                  setPage(newPage);
+                  setPageSize(newPageSize);
+                },
+              }}
+            />
+          </div>
         )}
       </Card>
     </AdminLayout>
