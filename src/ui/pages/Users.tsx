@@ -82,7 +82,7 @@ export const Users: React.FC = () => {
           v ? new Date(v).toLocaleString(dateLocale) : "—",
       },
     ],
-    [t, dateLocale]
+    [t, dateLocale],
   );
 
   return (

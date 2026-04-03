@@ -38,28 +38,23 @@ const baseQueryWithReauth =
     return result;
   };
 
-
 export const emptySplitApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth({
     baseUrl: apiUrl,
     prepareHeaders: async (headers: Headers) => {
-        try {
-            const authToken = JSON.parse(
-                localStorage.getItem("auth-token") || ""
-            )
+      try {
+        const authToken = JSON.parse(localStorage.getItem("auth-token") || "");
 
-            if(authToken) {
-                headers.set("Authorization", `Bearer ${authToken}`)
-            }
-
-            return headers
-        } catch (err) {
-            console.log(err)
+        if (authToken) {
+          headers.set("Authorization", `Bearer ${authToken}`);
         }
-    }
+
+        return headers;
+      } catch (err) {
+        console.log(err);
+      }
+    },
   }),
   endpoints: () => ({}),
 });
-
-
