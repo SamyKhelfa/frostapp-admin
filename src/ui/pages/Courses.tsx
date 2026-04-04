@@ -11,14 +11,10 @@ export const Courses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data, isLoading } = useGetLessonsQuery({
-    page,
-    limit: pageSize,
-    enablePagination: true,
-  });
+  const { data, isLoading } = useGetLessonsQuery();
 
-  const courses = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const courses = data ?? [];
+  const total = courses.length;
 
   const { t, i18n } = useTranslation();
 
@@ -26,33 +22,26 @@ export const Courses: React.FC = () => {
 
   const columns: ColumnsType<ILesson> = [
     {
-      title: t("courses.lessonId"),
-      dataIndex: "id",
-      key: "id",
-      width: 80,
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
-      title: t("courses.lessonTitle"),
+      title: t("Titre"),
       dataIndex: "title",
       key: "title",
       width: 80,
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: t("courses.lessonDuration"),
+      title: t("Durée"),
       dataIndex: "duration",
       key: "duration",
       render: (duration: number) => `${duration} min`,
     },
     {
-      title: t("courses.userAssociated"),
+      title: t("Utilisateurs associés"),
       dataIndex: "users",
       key: "users",
       render: (users: string[]) => users.join(", "),
     },
     {
-      title: t("courses.colCreatedAt"),
+      title: t("Créé le :"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date: string) =>
@@ -71,7 +60,7 @@ export const Courses: React.FC = () => {
           <LessonsTableSkeleton />
         ) : (
           <div>
-            <h1>{t("courses.title")}</h1>
+            <h1>{t("Cours")}</h1>
             <Table<ILesson>
               rowKey="id"
               columns={columns}
@@ -88,7 +77,7 @@ export const Courses: React.FC = () => {
                 showSizeChanger: true,
                 pageSizeOptions: ["5", "10", "20", "50"],
                 showTotal: (totalCount: number, range: [number, number]) =>
-                  t("courses.paginationTotal", {
+                  t("Page", {
                     start: range[0],
                     end: range[1],
                     total: totalCount,
