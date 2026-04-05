@@ -1,22 +1,29 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { Card, Table } from "antd";
+import { Card, Table, Button } from "antd";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetLessonsQuery } from "@core/api/lesson.api";
 import { ColumnsType } from "antd/es/table";
 import { ILesson } from "@core/interfaces";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
+import {useNavigate} from "react-router-dom";
 
 export const Courses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data, isLoading } = useGetLessonsQuery();
+  const { data, isLoading } = useGetLessonsQuery({
+    page,
+    limit: pageSize,
+    enablePagination: true,
+  });
 
-  const courses = data ?? [];
-  const total = courses.length;
+  const courses = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   const { t, i18n } = useTranslation();
+
+  const navigate = useNavigate();
 
   const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
 
@@ -38,7 +45,7 @@ export const Courses: React.FC = () => {
       title: t("Utilisateurs associés"),
       dataIndex: "users",
       key: "users",
-      render: (users: string[]) => users.join(", "),
+      render: (users: string[]) => users?.join(", "),
     },
     {
       title: t("Créé le :"),
@@ -60,8 +67,12 @@ export const Courses: React.FC = () => {
           <LessonsTableSkeleton />
         ) : (
           <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
             <h1>{t("Cours")}</h1>
-            <Table<ILesson>
+            <Button style={{backgroundColor: "#4196ff", color:"white", justifyContent:"end"}} onClick={() => navigate("/AddCourse")}>+ Ajouter un cours</Button>
+            </div>
+              <Table<ILesson>
               rowKey="id"
               columns={columns}
               dataSource={courses ?? []}
