@@ -29,6 +29,7 @@ export const lessonApi = emptySplitApi.injectEndpoints({
           params: { page, limit, enablePagination },
         };
       },
+      providesTags: ["Lessons"],
     }),
     getLessonById: builder.query<ILesson, string>({
       query: (id: string) => ({
@@ -37,14 +38,26 @@ export const lessonApi = emptySplitApi.injectEndpoints({
       }),
     }),
     createLesson: builder.mutation<ILesson, Partial<ILesson>>({
-      query: (body) =>
-          ({
-            url: "/lessons",
-            method: "POST",
-            body,
-          })
-    })
+      query: (body) => ({
+        url: "/lessons",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Lessons"],
+    }),
+    deleteLesson: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/lessons/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Lessons"],
+    }),
   }),
 });
 
-export const { useGetLessonsQuery, useGetLessonByIdQuery, useCreateLessonMutation } = lessonApi;
+export const {
+  useGetLessonsQuery,
+  useGetLessonByIdQuery,
+  useCreateLessonMutation,
+  useDeleteLessonMutation,
+} = lessonApi;

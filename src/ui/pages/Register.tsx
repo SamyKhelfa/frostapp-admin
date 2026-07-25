@@ -60,7 +60,7 @@ export default function Register() {
           margin: "0 auto",
         }}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
+        <Space orientation="vertical" style={{ width: "100%" }} size="large">
           <Typography.Title
             level={3}
             style={{ textAlign: "center", margin: 0 }}

@@ -23,40 +23,33 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import type { IChapter } from "../../core/interfaces/chapter.interface";
-import {
-  saveMockCourse,
-  updateMockCourse,
-  loadMockCourses,
-  type MockLesson,
-} from "../../core/mocks/course.mock";
+import { useCreateLessonMutation } from "@core/api/lesson.api";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
+
+type LocalLesson = {
+  id: string;
+  title: string;
+  description: string;
+  chapters: IChapter[];
+};
+
 export const AddCourse: React.FC = () => {
   const { Text } = Typography;
   const { t } = useTranslation();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [lessons, setLessons] = useState<MockLesson[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [lessons, setLessons] = useState<LocalLesson[]>([]);
+  const [createLesson, { isLoading: isCreating }] = useCreateLessonMutation();
   const isEditMode = Boolean(courseId);
 
   useEffect(() => {
     if (courseId) {
-      const courses = loadMockCourses();
-      const course = courses.find((c) => c.id === courseId);
-      
-      if (course) {
-        form.setFieldsValue({
-          title: course.title,
-          description: course.description,
-        });
-        setLessons(course.lessons || []);
-      } else {
-        message.error(t("addCourse.courseNotFound"));
-      }
+      // TODO: brancher useGetLessonByIdQuery pour préremplir en mode édition
+      message.info("Le mode édition n'est pas encore branché à l'API");
     }
-  }, [courseId, form, t]);
+  }, [courseId]);
 
   const handleAddLesson = () => {
     setLessons([
@@ -77,8 +70,8 @@ export const AddCourse: React.FC = () => {
 
   const handleLessonChange = (
     lessonIndex: number,
-    field: keyof Omit<MockLesson, "chapters" | "id">,
-    value: any
+    field: keyof Omit<LocalLesson, "chapters" | "id">,
+    value: any,
   ) => {
     const next = [...lessons];
     next[lessonIndex] = { ...next[lessonIndex], [field]: value };
@@ -119,7 +112,7 @@ export const AddCourse: React.FC = () => {
     lessonIndex: number,
     chapterIndex: number,
     field: keyof IChapter,
-    value: any
+    value: any,
   ) => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
@@ -131,7 +124,7 @@ export const AddCourse: React.FC = () => {
   const handleAddChapterImages = async (
     lessonIndex: number,
     chapterIndex: number,
-    _newFiles: File[]
+    _newFiles: File[],
   ) => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
@@ -158,7 +151,7 @@ export const AddCourse: React.FC = () => {
   const handleRemoveChapterImage = (
     lessonIndex: number,
     chapterIndex: number,
-    imageIndex: number
+    imageIndex: number,
   ) => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
@@ -182,39 +175,25 @@ export const AddCourse: React.FC = () => {
   };
 
   const onSubmit = async (values: any) => {
-    setLoading(true);
     try {
-      const courseData = {
-        ...values,
-        lessons,
+      if (isEditMode && courseId) {
+        message.warning("Édition pas encore branchée à l'API");
+        return;
+      }
+
+      const payload = {
+        title: values.title,
+        description: values.description,
       };
 
-      if (isEditMode && courseId) {
-        const updated = updateMockCourse(courseId, courseData);
-        if (updated) {
-          console.log("Mock course updated:", updated);
-          message.success(t("addCourse.updatedSuccess"));
-          navigate(`/courses/${courseId}`);
-        } else {
-          message.error(t("addCourse.updateFailed"));
-        }
-      } else {
-        const saved = saveMockCourse(courseData);
-        console.log("Mock course saved:", saved);
-        message.success(t("addCourse.createdSuccess"));
-        form.resetFields();
-        setLessons([]);
-      }
-    } catch (error: any) {
-      message.error(
-        error instanceof Error && error.message
-          ? error.message
-          : isEditMode
-            ? t("addCourse.editError")
-            : t("addCourse.createError")
-      );
-    } finally {
-      setLoading(false);
+      const created = await createLesson(payload).unwrap();
+      message.success(t("addCourse.createdSuccess"));
+      form.resetFields();
+      setLessons([]);
+      navigate(`/courses/${created.id}`);
+    } catch (e: any) {
+      const msg = e?.data?.message ?? t("addCourse.createError");
+      message.error(msg);
     }
   };
 
@@ -336,34 +315,41 @@ export const AddCourse: React.FC = () => {
                     ),
                     children: (
                       <Space
-                        direction="vertical"
+                        orientation="vertical"
                         style={{ width: "100%" }}
                         size="large"
                       >
-                        <Form.Item label={t("addCourse.fieldLessonTitle")} required>
+                        <Form.Item
+                          label={t("addCourse.fieldLessonTitle")}
+                          required
+                        >
                           <Input
-                            placeholder={t("addCourse.fieldLessonTitlePlaceholder")}
+                            placeholder={t(
+                              "addCourse.fieldLessonTitlePlaceholder",
+                            )}
                             value={lesson.title}
                             onChange={(e) =>
                               handleLessonChange(
                                 lessonIndex,
                                 "title",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                           />
                         </Form.Item>
-                        <Form.Item label={t("addCourse.fieldLessonDescription")}>
+                        <Form.Item
+                          label={t("addCourse.fieldLessonDescription")}
+                        >
                           <Input.TextArea
                             placeholder={t(
-                              "addCourse.fieldLessonDescriptionPlaceholder"
+                              "addCourse.fieldLessonDescriptionPlaceholder",
                             )}
                             value={lesson.description}
                             onChange={(e) =>
                               handleLessonChange(
                                 lessonIndex,
                                 "description",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                           />
@@ -423,7 +409,7 @@ export const AddCourse: React.FC = () => {
                                 ),
                                 children: (
                                   <Space
-                                    direction="vertical"
+                                    orientation="vertical"
                                     style={{ width: "100%" }}
                                     size="large"
                                   >
@@ -433,7 +419,7 @@ export const AddCourse: React.FC = () => {
                                     >
                                       <Input
                                         placeholder={t(
-                                          "addCourse.fieldChapterTitlePlaceholder"
+                                          "addCourse.fieldChapterTitlePlaceholder",
                                         )}
                                         value={chapter.title || ""}
                                         onChange={(e) =>
@@ -441,18 +427,20 @@ export const AddCourse: React.FC = () => {
                                             lessonIndex,
                                             chapterIndex,
                                             "title",
-                                            e.target.value
+                                            e.target.value,
                                           )
                                         }
                                       />
                                     </Form.Item>
 
                                     <Form.Item
-                                      label={t("addCourse.fieldChapterDescription")}
+                                      label={t(
+                                        "addCourse.fieldChapterDescription",
+                                      )}
                                     >
                                       <Input.TextArea
                                         placeholder={t(
-                                          "addCourse.fieldChapterDescriptionPlaceholder"
+                                          "addCourse.fieldChapterDescriptionPlaceholder",
                                         )}
                                         rows={3}
                                         value={chapter.description || ""}
@@ -461,7 +449,7 @@ export const AddCourse: React.FC = () => {
                                             lessonIndex,
                                             chapterIndex,
                                             "description",
-                                            e.target.value
+                                            e.target.value,
                                           )
                                         }
                                       />
@@ -471,7 +459,7 @@ export const AddCourse: React.FC = () => {
                                       label={t("addCourse.fieldChapterImages")}
                                     >
                                       <Space
-                                        direction="vertical"
+                                        orientation="vertical"
                                         style={{ width: "100%" }}
                                       >
                                         <Upload
@@ -483,14 +471,16 @@ export const AddCourse: React.FC = () => {
                                               await handleAddChapterImages(
                                                 lessonIndex,
                                                 chapterIndex,
-                                                [file]
+                                                [file],
                                               );
                                               message.success(
-                                                t("addCourse.imageImported")
+                                                t("addCourse.imageImported"),
                                               );
                                             } catch (err) {
                                               message.error(
-                                                t("addCourse.imageImportFailed")
+                                                t(
+                                                  "addCourse.imageImportFailed",
+                                                ),
                                               );
                                               console.error(err);
                                             }
@@ -530,7 +520,7 @@ export const AddCourse: React.FC = () => {
                                                     <img
                                                       src={img}
                                                       alt={t(
-                                                        "addCourse.previewAlt"
+                                                        "addCourse.previewAlt",
                                                       )}
                                                       style={{
                                                         width: "100%",
@@ -547,7 +537,7 @@ export const AddCourse: React.FC = () => {
                                                         handleRemoveChapterImage(
                                                           lessonIndex,
                                                           chapterIndex,
-                                                          imgIndex
+                                                          imgIndex,
                                                         )
                                                       }
                                                       style={{
@@ -558,7 +548,7 @@ export const AddCourse: React.FC = () => {
                                                       }}
                                                     />
                                                   </div>
-                                                )
+                                                ),
                                               )}
                                             </Space>
                                           ) : (
@@ -587,7 +577,7 @@ export const AddCourse: React.FC = () => {
                                               lessonIndex,
                                               chapterIndex,
                                               "position",
-                                              value
+                                              value,
                                             )
                                           }
                                           style={{ width: 100 }}
@@ -605,7 +595,7 @@ export const AddCourse: React.FC = () => {
                                               lessonIndex,
                                               chapterIndex,
                                               "status",
-                                              value
+                                              value,
                                             )
                                           }
                                         />
@@ -620,7 +610,7 @@ export const AddCourse: React.FC = () => {
                                       onClick={() =>
                                         handleDeleteChapter(
                                           lessonIndex,
-                                          chapterIndex
+                                          chapterIndex,
                                         )
                                       }
                                     >
@@ -628,7 +618,7 @@ export const AddCourse: React.FC = () => {
                                     </Button>
                                   </Space>
                                 ),
-                              })
+                              }),
                             )}
                           />
                         )}
@@ -656,7 +646,7 @@ export const AddCourse: React.FC = () => {
                 type="primary"
                 htmlType="submit"
                 size="large"
-                loading={loading}
+                loading={isCreating}
                 style={{ minWidth: 150 }}
               >
                 {isEditMode

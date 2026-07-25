@@ -44,7 +44,7 @@ export default function CourseDetail() {
   if (!course) {
     return (
       <AdminLayout>
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
+        <Space orientation="vertical" style={{ width: "100%" }} size="large">
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate("/courses")}
@@ -60,7 +60,7 @@ export default function CourseDetail() {
   return (
     <AdminLayout>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
+        <Space orientation="vertical" style={{ width: "100%" }} size="large">
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate("/courses")}
@@ -147,7 +147,7 @@ export default function CourseDetail() {
                   ),
                   children: (
                     <Space
-                      direction="vertical"
+                      orientation="vertical"
                       style={{ width: "100%" }}
                       size="large"
                     >
@@ -209,7 +209,7 @@ export default function CourseDetail() {
                               ),
                               children: (
                                 <Space
-                                  direction="vertical"
+                                  orientation="vertical"
                                   style={{ width: "100%" }}
                                   size="middle"
                                 >

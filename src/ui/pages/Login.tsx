@@ -58,7 +58,7 @@ export default function Login() {
           boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
         }}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
+        <Space orientation="vertical" style={{ width: "100%" }} size="large">
           <Title level={3} style={{ textAlign: "center", margin: 0 }}>
             {t("login.title")}
           </Title>

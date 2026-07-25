@@ -1,54 +1,33 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { Card, Table, Button, Tag, Popconfirm, message } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Table, Tag, Button } from "antd";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useGetLessonsQuery,
-  useDeleteLessonMutation,
-} from "@core/api/lesson.api";
+import { useGetChaptersQuery } from "@core/api/chapter.api";
 import { ColumnsType } from "antd/es/table";
-import { ILesson } from "@core/interfaces";
+import { IChapter } from "@core/interfaces";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
 import { useNavigate } from "react-router-dom";
-import { CourseDetailPreview } from "../components/courses/CourseDetailPreview";
 
-export const Courses: React.FC = () => {
+export const Chapters: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data, isLoading } = useGetLessonsQuery({
+  const { data, isLoading } = useGetChaptersQuery({
     page,
     limit: pageSize,
     enablePagination: true,
   });
 
-  const courses = data?.data ?? [];
+  const chapters = data?.data ?? [];
   const total = data?.total ?? 0;
 
   const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 
-  const [deleteLesson, { isLoading: isDeleting }] = useDeleteLessonMutation();
-
-  const handleDelete = async (id: number, title: string) => {
-    try {
-      await deleteLesson(id).unwrap();
-      message.success(`Cours "${title}" supprimé`);
-    } catch (e: any) {
-      message.error(e?.data?.message ?? "Erreur lors de la suppression");
-    }
-  };
-
   const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
 
-  const columns: ColumnsType<ILesson> = [
-    {
-      title: t("Chapitres"),
-      key: "chaptersCount",
-      render: (_, record) => <Tag>{record.chapters?.length ?? 0}</Tag>,
-    },
+  const columns: ColumnsType<IChapter> = [
     {
       title: t("Titre"),
       dataIndex: "title",
@@ -57,16 +36,27 @@ export const Courses: React.FC = () => {
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: t("Durée"),
-      dataIndex: "duration",
-      key: "duration",
-      render: (duration: number) => `${duration} min`,
+      title: t("Position"),
+      dataIndex: "position",
+      key: "position",
+      sorter: (a, b) => a.position - b.position,
     },
     {
-      title: t("Utilisateurs associés"),
-      dataIndex: "users",
-      key: "users",
-      render: (users: string[]) => users?.join(", "),
+      title: t("Statut"),
+      dataIndex: "status",
+      key: "status",
+      render: (status: boolean) =>
+        status ? (
+          <Tag color="green">Actif</Tag>
+        ) : (
+          <Tag color="red">Inactif</Tag>
+        ),
+    },
+    {
+      title: t("Leçon"),
+      dataIndex: "lesson",
+      key: "lesson",
+      render: (lesson: IChapter["lesson"]) => lesson?.title ?? "—",
     },
     {
       title: t("Créé le :"),
@@ -78,30 +68,6 @@ export const Courses: React.FC = () => {
           month: "short",
           day: "numeric",
         }),
-    },
-    {
-      title: t("Actions"),
-      key: "actions",
-      width: 80,
-      fixed: "right",
-      align: "center",
-      render: (_, record) => (
-        <Popconfirm
-          title="Supprimer ce cours ?"
-          description={`"${record.title}" et tous ses chapitres seront supprimés définitivement.`}
-          okText="Oui, supprimer"
-          cancelText="Annuler"
-          okButtonProps={{ danger: true, loading: isDeleting }}
-          onConfirm={() => handleDelete(record.id, record.title)}
-        >
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </Popconfirm>
-      ),
     },
   ];
 
@@ -119,28 +85,22 @@ export const Courses: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              <h1>{t("Cours")}</h1>
+              <h1>{t("Chapitres")}</h1>
               <Button
                 style={{
                   backgroundColor: "#4196ff",
                   color: "white",
                   justifyContent: "end",
                 }}
-                onClick={() => navigate("/AddCourse")}
+                onClick={() => navigate("/AddChapter")}
               >
-                + Ajouter un cours
+                + Ajouter un chapitre
               </Button>
             </div>
-            <Table<ILesson>
+            <Table<IChapter>
               rowKey="id"
               columns={columns}
-              dataSource={courses ?? []}
-              expandable={{
-                expandedRowRender: (record) => (
-                  <CourseDetailPreview lesson={record} />
-                ),
-                rowExpandable: (record) => (record.chapters?.length ?? 0) >= 0,
-              }}
+              dataSource={chapters ?? []}
               scroll={{ x: "max-content" }}
               styles={{
                 body: { cell: { whiteSpace: "nowrap" } },
