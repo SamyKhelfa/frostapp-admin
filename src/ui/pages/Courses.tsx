@@ -11,7 +11,6 @@ import { ColumnsType } from "antd/es/table";
 import { ILesson } from "@core/interfaces";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
 import { useNavigate } from "react-router-dom";
-import { CourseDetailPreview } from "../components/courses/CourseDetailPreview";
 
 export const Courses: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -86,21 +85,21 @@ export const Courses: React.FC = () => {
       fixed: "right",
       align: "center",
       render: (_, record) => (
-        <Popconfirm
-          title="Supprimer ce cours ?"
-          description={`"${record.title}" et tous ses chapitres seront supprimés définitivement.`}
-          okText="Oui, supprimer"
-          cancelText="Annuler"
-          okButtonProps={{ danger: true, loading: isDeleting }}
-          onConfirm={() => handleDelete(record.id, record.title)}
-        >
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </Popconfirm>
+        // La ligne entière navigue vers le détail : on isole la cellule
+        // d'actions, popup de confirmation comprise (React propage les events
+        // à travers le portail).
+        <div onClick={(e) => e.stopPropagation()}>
+          <Popconfirm
+            title="Supprimer ce cours ?"
+            description={`"${record.title}" et tous ses chapitres seront supprimés définitivement.`}
+            okText="Oui, supprimer"
+            cancelText="Annuler"
+            okButtonProps={{ danger: true, loading: isDeleting }}
+            onConfirm={() => handleDelete(record.id, record.title)}
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </div>
       ),
     },
   ];
@@ -135,12 +134,10 @@ export const Courses: React.FC = () => {
               rowKey="id"
               columns={columns}
               dataSource={courses ?? []}
-              expandable={{
-                expandedRowRender: (record) => (
-                  <CourseDetailPreview lesson={record} />
-                ),
-                rowExpandable: (record) => (record.chapters?.length ?? 0) >= 0,
-              }}
+              onRow={(record) => ({
+                onClick: () => navigate(`/courses/${record.id}`),
+                style: { cursor: "pointer" },
+              })}
               scroll={{ x: "max-content" }}
               styles={{
                 body: { cell: { whiteSpace: "nowrap" } },
