@@ -27,7 +27,6 @@ export function ProtectedRoute() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/courses" element={<Courses />} />
       <Route path="/courses/:courseId" element={<CourseDetail />} />
-      <Route path="/AddCourse" element={<AddCourse />} />
       <Route path="/courses/edit/:courseId" element={<AddCourse />} />
       <Route path="/chapters" element={<Chapters />} />
       <Route path="/community" element={<Community />} />

@@ -11,10 +11,12 @@ import { ColumnsType } from "antd/es/table";
 import { ILesson } from "@core/interfaces";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
 import { useNavigate } from "react-router-dom";
+import { CourseFormModal } from "../components/courses/CourseFormModal";
 
 export const Courses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const { data, isLoading } = useGetLessonsQuery({
     page,
@@ -125,7 +127,7 @@ export const Courses: React.FC = () => {
                   color: "white",
                   justifyContent: "end",
                 }}
-                onClick={() => navigate("/AddCourse")}
+                onClick={() => setIsCreateOpen(true)}
               >
                 + Ajouter un cours
               </Button>
@@ -164,6 +166,13 @@ export const Courses: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* La création reste sur /courses : la liste se rafraîchit via
+          l'invalidation du tag Lessons, sans redirection. */}
+      <CourseFormModal
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
     </AdminLayout>
   );
 };
