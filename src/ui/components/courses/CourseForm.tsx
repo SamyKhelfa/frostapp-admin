@@ -24,13 +24,13 @@ import type { ILesson } from "@core/interfaces";
 import { useCreateLessonFullMutation } from "@core/api/lesson.api";
 
 /**
- * Vocabulaire : ce que l'admin appelle cours / leçon / chapitre correspond
- * respectivement à Lesson / Chapter / SubChapter côté API. Les types locaux
- * sont nommés d'après l'entité créée, les libellés affichés d'après le
- * vocabulaire métier.
+ * Vocabulaire : ce que l'admin appelle cours / chapitre / sous-chapitre
+ * correspond respectivement à Lesson / Chapter / SubChapter côté API. Les
+ * types locaux sont nommés d'après l'entité créée, les libellés affichés
+ * d'après le vocabulaire métier.
  */
 
-/** Un « chapitre » dans l'UI. */
+/** Un « sous-chapitre » dans l'UI. */
 type DraftSubChapter = {
   title: string;
   description: string;
@@ -40,7 +40,7 @@ type DraftSubChapter = {
   position: number;
 };
 
-/** Une « leçon » dans l'UI. */
+/** Un « chapitre » dans l'UI. */
 type DraftChapter = {
   key: string;
   title: string;
@@ -80,7 +80,7 @@ export const CourseForm: React.FC<Props> = ({
     }
   }, [courseId]);
 
-  /* ----------------------------- Leçons (Chapter) ---------------------------- */
+  /* ---------------------------- Chapitres (Chapter) --------------------------- */
 
   const handleAddChapter = () => {
     setChapters([
@@ -99,7 +99,7 @@ export const CourseForm: React.FC<Props> = ({
 
   const handleDeleteChapter = (chapterIndex: number) => {
     setChapters(chapters.filter((_, i) => i !== chapterIndex));
-    message.success(t("addCourse.lessonDeleted"));
+    message.success(t("addCourse.chapterDeleted"));
   };
 
   const handleChapterChange = (
@@ -138,7 +138,7 @@ export const CourseForm: React.FC<Props> = ({
     message.success(t("addCourse.imageRemoved"));
   };
 
-  /* -------------------------- Chapitres (SubChapter) ------------------------- */
+  /* ----------------------- Sous-chapitres (SubChapter) ----------------------- */
 
   const handleAddSubChapter = (chapterIndex: number) => {
     const next = [...chapters];
@@ -172,7 +172,7 @@ export const CourseForm: React.FC<Props> = ({
       ),
     };
     setChapters(next);
-    message.success(t("addCourse.chapterDeleted"));
+    message.success(t("addCourse.subChapterDeleted"));
   };
 
   const handleSubChapterChange = (
@@ -201,7 +201,7 @@ export const CourseForm: React.FC<Props> = ({
       }
 
       if (chapters.some((chapter) => !chapter.title.trim())) {
-        message.error(t("addCourse.lessonTitleRequired"));
+        message.error(t("addCourse.chapterTitleRequired"));
         return;
       }
 
@@ -210,12 +210,12 @@ export const CourseForm: React.FC<Props> = ({
           chapter.subChapters.some((subChapter) => !subChapter.title.trim()),
         )
       ) {
-        message.error(t("addCourse.chapterTitleRequired"));
+        message.error(t("addCourse.subChapterTitleRequired"));
         return;
       }
 
-      // Une seule requête : le back crée le cours, ses leçons et ses chapitres
-      // dans la même transaction.
+      // Une seule requête : le back crée le cours, ses chapitres et ses
+      // sous-chapitres dans la même transaction.
       const created = await createLessonFull({
         title: values.title,
         description: values.description,
@@ -245,8 +245,8 @@ export const CourseForm: React.FC<Props> = ({
 
       message.success(
         t("addCourse.createdWithContent", {
-          lessons: chapters.length,
-          chapters: subChapterCount,
+          chapters: chapters.length,
+          subChapters: subChapterCount,
         }),
       );
       form.resetFields();
@@ -314,20 +314,20 @@ export const CourseForm: React.FC<Props> = ({
           }}
         >
           <h3 style={{ margin: 0, color: "#1890ff" }}>
-            {t("addCourse.lessonsHeading", { count: chapters.length })}
+            {t("addCourse.chaptersHeading", { count: chapters.length })}
           </h3>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleAddChapter}
           >
-            {t("addCourse.addLesson")}
+            {t("addCourse.addChapter")}
           </Button>
         </div>
 
         {chapters.length === 0 ? (
           <Empty
-            description={t("addCourse.noLessons")}
+            description={t("addCourse.noChapters")}
             style={{ padding: "40px 0" }}
           />
         ) : (
@@ -345,7 +345,7 @@ export const CourseForm: React.FC<Props> = ({
                 >
                   <span>
                     {chapter.title ||
-                      t("addCourse.lessonFallback", {
+                      t("addCourse.chapterFallback", {
                         number: chapterIndex + 1,
                       })}
                   </span>
@@ -356,7 +356,7 @@ export const CourseForm: React.FC<Props> = ({
                         : t("addCourse.statusOff")}
                     </Tag>
                     <Tag color="blue">
-                      {t("addCourse.chaptersCount", {
+                      {t("addCourse.subChaptersCount", {
                         count: chapter.subChapters.length,
                       })}
                     </Tag>
@@ -369,9 +369,9 @@ export const CourseForm: React.FC<Props> = ({
                   style={{ width: "100%" }}
                   size="large"
                 >
-                  <Form.Item label={t("addCourse.fieldLessonTitle")} required>
+                  <Form.Item label={t("addCourse.fieldChapterTitle")} required>
                     <Input
-                      placeholder={t("addCourse.fieldLessonTitlePlaceholder")}
+                      placeholder={t("addCourse.fieldChapterTitlePlaceholder")}
                       value={chapter.title}
                       onChange={(e) =>
                         handleChapterChange(
@@ -383,10 +383,10 @@ export const CourseForm: React.FC<Props> = ({
                     />
                   </Form.Item>
 
-                  <Form.Item label={t("addCourse.fieldLessonDescription")}>
+                  <Form.Item label={t("addCourse.fieldChapterDescription")}>
                     <Input.TextArea
                       placeholder={t(
-                        "addCourse.fieldLessonDescriptionPlaceholder",
+                        "addCourse.fieldChapterDescriptionPlaceholder",
                       )}
                       rows={3}
                       value={chapter.description}
@@ -400,7 +400,7 @@ export const CourseForm: React.FC<Props> = ({
                     />
                   </Form.Item>
 
-                  <Form.Item label={t("addCourse.fieldLessonImages")}>
+                  <Form.Item label={t("addCourse.fieldChapterImages")}>
                     <Space orientation="vertical" style={{ width: "100%" }}>
                       <Upload
                         accept="image/*"
@@ -468,7 +468,7 @@ export const CourseForm: React.FC<Props> = ({
                         </Space>
                       ) : (
                         <Text type="secondary">
-                          {t("addCourse.noLessonImages")}
+                          {t("addCourse.noChapterImages")}
                         </Text>
                       )}
                     </Space>
@@ -490,7 +490,7 @@ export const CourseForm: React.FC<Props> = ({
                     </Form.Item>
 
                     <Form.Item
-                      label={t("addCourse.statusLessonLabel")}
+                      label={t("addCourse.statusChapterLabel")}
                       style={{ margin: 0 }}
                     >
                       <Switch
@@ -512,7 +512,7 @@ export const CourseForm: React.FC<Props> = ({
                     }}
                   >
                     <h4 style={{ margin: 0 }}>
-                      {t("addCourse.chaptersHeading", {
+                      {t("addCourse.subChaptersHeading", {
                         count: chapter.subChapters.length,
                       })}
                     </h4>
@@ -521,12 +521,12 @@ export const CourseForm: React.FC<Props> = ({
                       icon={<PlusOutlined />}
                       onClick={() => handleAddSubChapter(chapterIndex)}
                     >
-                      {t("addCourse.addChapter")}
+                      {t("addCourse.addSubChapter")}
                     </Button>
                   </div>
 
                   {chapter.subChapters.length === 0 ? (
-                    <Empty description={t("addCourse.noChapters")} />
+                    <Empty description={t("addCourse.noSubChapters")} />
                   ) : (
                     <Collapse
                       items={chapter.subChapters.map(
@@ -542,7 +542,7 @@ export const CourseForm: React.FC<Props> = ({
                             >
                               <span>
                                 {subChapter.title ||
-                                  t("addCourse.chapterFallback", {
+                                  t("addCourse.subChapterFallback", {
                                     number: subChapterIndex + 1,
                                   })}
                               </span>
@@ -560,12 +560,12 @@ export const CourseForm: React.FC<Props> = ({
                               size="large"
                             >
                               <Form.Item
-                                label={t("addCourse.fieldChapterTitle")}
+                                label={t("addCourse.fieldSubChapterTitle")}
                                 required
                               >
                                 <Input
                                   placeholder={t(
-                                    "addCourse.fieldChapterTitlePlaceholder",
+                                    "addCourse.fieldSubChapterTitlePlaceholder",
                                   )}
                                   value={subChapter.title}
                                   onChange={(e) =>
@@ -580,11 +580,13 @@ export const CourseForm: React.FC<Props> = ({
                               </Form.Item>
 
                               <Form.Item
-                                label={t("addCourse.fieldChapterDescription")}
+                                label={t(
+                                  "addCourse.fieldSubChapterDescription",
+                                )}
                               >
                                 <Input.TextArea
                                   placeholder={t(
-                                    "addCourse.fieldChapterDescriptionPlaceholder",
+                                    "addCourse.fieldSubChapterDescriptionPlaceholder",
                                   )}
                                   rows={3}
                                   value={subChapter.description}
@@ -600,11 +602,11 @@ export const CourseForm: React.FC<Props> = ({
                               </Form.Item>
 
                               <Form.Item
-                                label={t("addCourse.fieldChapterVideo")}
+                                label={t("addCourse.fieldSubChapterVideo")}
                               >
                                 <Input
                                   placeholder={t(
-                                    "addCourse.fieldChapterVideoPlaceholder",
+                                    "addCourse.fieldSubChapterVideoPlaceholder",
                                   )}
                                   value={subChapter.video}
                                   onChange={(e) =>
@@ -620,7 +622,7 @@ export const CourseForm: React.FC<Props> = ({
 
                               <Space style={{ width: "100%" }} align="center">
                                 <Form.Item
-                                  label={t("addCourse.fieldChapterDuration")}
+                                  label={t("addCourse.fieldSubChapterDuration")}
                                   style={{ margin: 0 }}
                                 >
                                   <InputNumber
@@ -660,7 +662,7 @@ export const CourseForm: React.FC<Props> = ({
                                 </Form.Item>
 
                                 <Form.Item
-                                  label={t("addCourse.statusChapterLabel")}
+                                  label={t("addCourse.statusSubChapterLabel")}
                                   style={{ margin: 0 }}
                                 >
                                   <Switch
@@ -689,7 +691,7 @@ export const CourseForm: React.FC<Props> = ({
                                   )
                                 }
                               >
-                                {t("addCourse.deleteChapter")}
+                                {t("addCourse.deleteSubChapter")}
                               </Button>
                             </Space>
                           ),
@@ -705,7 +707,7 @@ export const CourseForm: React.FC<Props> = ({
                     onClick={() => handleDeleteChapter(chapterIndex)}
                     block
                   >
-                    {t("addCourse.deleteLesson")}
+                    {t("addCourse.deleteChapter")}
                   </Button>
                 </Space>
               ),

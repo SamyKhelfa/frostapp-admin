@@ -28,7 +28,7 @@ export function loadMockCourses(): MockCourse[] {
 }
 
 export function saveMockCourse(
-  course: Omit<MockCourse, "id" | "createdAt">
+  course: Omit<MockCourse, "id" | "createdAt">,
 ): MockCourse {
   const newCourse: MockCourse = {
     ...course,
@@ -44,11 +44,11 @@ export function saveMockCourse(
 
 export function updateMockCourse(
   courseId: string,
-  course: Omit<MockCourse, "id" | "createdAt">
+  course: Omit<MockCourse, "id" | "createdAt">,
 ): MockCourse | null {
   const existing = loadMockCourses();
   const index = existing.findIndex((c) => c.id === courseId);
-  
+
   if (index === -1) {
     return null;
   }

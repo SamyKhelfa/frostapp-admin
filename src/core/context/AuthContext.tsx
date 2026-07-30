@@ -1,7 +1,15 @@
 import { useLoginMutation, useMeQuery } from "@core/api";
 import { i18n } from "@core/i18n/i18n";
 import { ILoginPayload, IUser } from "@core/interfaces";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { toast } from "react-toastify";
 
 type RegisterPayload = { email: string; password: string; name: string };
@@ -26,7 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IUser | null>(null);
 
   const hasToken = !!localStorage.getItem("auth-token");
-  const { data: userData, isLoading: isMeLoading, isSuccess: isMeSuccess } = useMeQuery(undefined, {
+  const {
+    data: userData,
+    isLoading: isMeLoading,
+    isSuccess: isMeSuccess,
+  } = useMeQuery(undefined, {
     skip: !hasToken,
   });
 
@@ -44,10 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleLogin = async ({ email, password }: ILoginPayload) => {
     try {
-      const { authToken, user: userResponse } = await loginMutation({ email, password }).unwrap();
+      const { authToken, user: userResponse } = await loginMutation({
+        email,
+        password,
+      }).unwrap();
       localStorage.setItem("auth-token", JSON.stringify(authToken));
       localStorage.setItem("user", JSON.stringify(userResponse));
-      
+
       setUser(userResponse);
       toast.success(i18n.t("auth.toastLoginSuccess"));
     } catch (error) {
@@ -75,14 +90,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       handleLogout,
       register,
     }),
-    [isLogging, isMeLoading, user, register]
+    [isLogging, isMeLoading, user, register],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuthContext = () => {

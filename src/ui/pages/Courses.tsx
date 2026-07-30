@@ -46,7 +46,7 @@ export const Courses: React.FC = () => {
 
   const columns: ColumnsType<ILesson> = [
     {
-      title: t("Leçons"),
+      title: t("Chapitres"),
       key: "chaptersCount",
       render: (_, record) => <Tag>{record.chapters?.length ?? 0}</Tag>,
     },

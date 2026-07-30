@@ -13,8 +13,8 @@ export interface ILesson {
 
 /**
  * Charge utile de POST /lessons/full : l'arborescence complète d'un cours.
- * Rappel du vocabulaire : cours = Lesson, leçon = Chapter, chapitre =
- * SubChapter. Tout ce qui est optionnel est défaulté par le back.
+ * Rappel du vocabulaire : cours = Lesson, chapitre = Chapter,
+ * sous-chapitre = SubChapter. Tout ce qui est optionnel est défaulté par le back.
  */
 export interface ISubChapterPayload {
   title: string;

@@ -21,7 +21,12 @@ export default function Register() {
     try {
       const res = await register({ email, password, name });
       const user = (res as { user?: unknown })?.user ?? res;
-      if (user && typeof user === "object" && "isAdmin" in user && !(user as { isAdmin?: boolean }).isAdmin) {
+      if (
+        user &&
+        typeof user === "object" &&
+        "isAdmin" in user &&
+        !(user as { isAdmin?: boolean }).isAdmin
+      ) {
       }
       nav("/");
     } catch (error: unknown) {

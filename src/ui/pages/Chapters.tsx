@@ -29,7 +29,7 @@ export const Chapters: React.FC = () => {
 
   const columns: ColumnsType<IChapter> = [
     {
-      title: t("Titre de la leçon"),
+      title: t("Titre du chapitre"),
       dataIndex: "title",
       key: "title",
       width: 80,
@@ -85,7 +85,7 @@ export const Chapters: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              <h1>{t("Leçons")}</h1>
+              <h1>{t("Chapitres")}</h1>
               <Button
                 style={{
                   backgroundColor: "#4196ff",
@@ -94,7 +94,7 @@ export const Chapters: React.FC = () => {
                 }}
                 onClick={() => navigate("/AddChapter")}
               >
-                + Ajouter une leçon
+                + Ajouter un chapitre
               </Button>
             </div>
             <Table<IChapter>

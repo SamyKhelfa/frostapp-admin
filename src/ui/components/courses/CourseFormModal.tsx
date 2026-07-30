@@ -23,7 +23,7 @@ export const CourseFormModal: React.FC<Props> = ({
       onCancel={onClose}
       footer={null}
       width={900}
-      // Le formulaire garde son état (leçons, chapitres) dans du state local :
+      // Le formulaire garde son état (chapitres, sous-chapitres) en local :
       // on le démonte à la fermeture pour repartir vide à la réouverture.
       destroyOnHidden
       maskClosable={false}

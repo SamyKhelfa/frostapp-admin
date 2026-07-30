@@ -48,7 +48,7 @@ export const lessonApi = emptySplitApi.injectEndpoints({
     }),
     /**
      * Crée l'arborescence complète en une requête : le cours (Lesson), ses
-     * leçons (Chapter) et leurs chapitres (SubChapter), dans une transaction.
+     * chapitres (Chapter) et leurs sous-chapitres (SubChapter), dans une transaction.
      */
     createLessonFull: builder.mutation<ILesson, ILessonFullPayload>({
       query: (body) => ({
