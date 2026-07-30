@@ -446,14 +446,14 @@ export const AddCourse: React.FC = () => {
                                         t("addCourse.chapterFallback", {
                                           number: chapterIndex + 1,
                                         })}
-                                      {chapter.status && (
-                                        <Tag
-                                          color="green"
-                                          style={{ marginLeft: 8 }}
-                                        >
-                                          {t("addCourse.active")}
-                                        </Tag>
-                                      )}
+                                      <Tag
+                                        color={chapter.status ? "green" : "red"}
+                                        style={{ marginLeft: 8 }}
+                                      >
+                                        {chapter.status
+                                          ? t("addCourse.statusOn")
+                                          : t("addCourse.statusOff")}
+                                      </Tag>
                                     </span>
                                   </div>
                                 ),
@@ -635,11 +635,24 @@ export const AddCourse: React.FC = () => {
                                       </Form.Item>
 
                                       <Form.Item
-                                        label={t("addCourse.status")}
+                                        label={t("addCourse.statusLabel")}
                                         style={{ margin: 0 }}
+                                        extra={
+                                          <Text type="secondary">
+                                            {chapter.status
+                                              ? t("addCourse.statusHintOn")
+                                              : t("addCourse.statusHintOff")}
+                                          </Text>
+                                        }
                                       >
                                         <Switch
                                           checked={chapter.status || false}
+                                          checkedChildren={t(
+                                            "addCourse.statusOn",
+                                          )}
+                                          unCheckedChildren={t(
+                                            "addCourse.statusOff",
+                                          )}
                                           onChange={(value) =>
                                             handleChapterChange(
                                               lessonIndex,

@@ -47,9 +47,9 @@ export const Chapters: React.FC = () => {
       key: "status",
       render: (status: boolean) =>
         status ? (
-          <Tag color="green">Actif</Tag>
+          <Tag color="green">{t("courseDetail.statusActive")}</Tag>
         ) : (
-          <Tag color="red">Inactif</Tag>
+          <Tag color="red">{t("courseDetail.statusInactive")}</Tag>
         ),
     },
     {
