@@ -24,14 +24,22 @@ import {
 } from "@ant-design/icons";
 import type { IChapter } from "../../core/interfaces/chapter.interface";
 import { useCreateLessonMutation } from "@core/api/lesson.api";
+import { useCreateChapterMutation } from "@core/api/chapter.api";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
+
+type LocalChapter = Pick<
+  IChapter,
+  "title" | "description" | "image" | "status" | "position"
+> & {
+  images?: string[];
+};
 
 type LocalLesson = {
   id: string;
   title: string;
   description: string;
-  chapters: IChapter[];
+  chapters: LocalChapter[];
 };
 
 export const AddCourse: React.FC = () => {
@@ -41,7 +49,11 @@ export const AddCourse: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [lessons, setLessons] = useState<LocalLesson[]>([]);
-  const [createLesson, { isLoading: isCreating }] = useCreateLessonMutation();
+  const [createLesson, { isLoading: isCreatingLesson }] =
+    useCreateLessonMutation();
+  const [createChapter, { isLoading: isCreatingChapters }] =
+    useCreateChapterMutation();
+  const isCreating = isCreatingLesson || isCreatingChapters;
   const isEditMode = Boolean(courseId);
 
   useEffect(() => {
@@ -111,7 +123,7 @@ export const AddCourse: React.FC = () => {
   const handleChapterChange = (
     lessonIndex: number,
     chapterIndex: number,
-    field: keyof IChapter,
+    field: keyof LocalChapter,
     value: any,
   ) => {
     const next = [...lessons];
@@ -129,10 +141,8 @@ export const AddCourse: React.FC = () => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
     const existing =
-      (chapters[chapterIndex].images as string[] | undefined) ??
-      (chapters[chapterIndex].image
-        ? [chapters[chapterIndex].image as string]
-        : []);
+      chapters[chapterIndex].images ??
+      (chapters[chapterIndex].image ? [chapters[chapterIndex].image] : []);
 
     const uploaded = [""];
 
@@ -156,10 +166,8 @@ export const AddCourse: React.FC = () => {
     const next = [...lessons];
     const chapters = [...(next[lessonIndex].chapters || [])];
     const current =
-      (chapters[chapterIndex].images as string[] | undefined) ??
-      (chapters[chapterIndex].image
-        ? [chapters[chapterIndex].image as string]
-        : []);
+      chapters[chapterIndex].images ??
+      (chapters[chapterIndex].image ? [chapters[chapterIndex].image] : []);
 
     const nextImages = current.filter((_, idx) => idx !== imageIndex);
 
@@ -181,13 +189,55 @@ export const AddCourse: React.FC = () => {
         return;
       }
 
+      // Le backend ne connaît que Lesson > Chapter : le cours saisi devient la
+      // leçon, et tous les chapitres des blocs du formulaire lui sont rattachés.
+      const chaptersToCreate = lessons.flatMap((lesson) => lesson.chapters);
+
+      if (chaptersToCreate.some((chapter) => !chapter.title?.trim())) {
+        message.error(t("addCourse.chapterTitleRequired"));
+        return;
+      }
+
       const payload = {
         title: values.title,
         description: values.description,
       };
 
       const created = await createLesson(payload).unwrap();
-      message.success(t("addCourse.createdSuccess"));
+
+      // Les chapitres ne peuvent pas être créés en même temps que la leçon
+      // (LessonCreateDTO.chapters attend des ids existants à connecter), il faut
+      // un POST /chapters par chapitre, en série pour préserver l'ordre.
+      let createdChapters = 0;
+      try {
+        for (const [index, chapter] of chaptersToCreate.entries()) {
+          await createChapter({
+            title: chapter.title.trim(),
+            description: chapter.description ?? "",
+            image: chapter.image ?? "",
+            status: chapter.status ?? false,
+            position: index + 1,
+            lessonId: created.id,
+          }).unwrap();
+          createdChapters += 1;
+        }
+      } catch (chapterError) {
+        message.warning(
+          t("addCourse.chaptersPartialError", {
+            created: createdChapters,
+            total: chaptersToCreate.length,
+          }),
+        );
+        console.error(chapterError);
+        navigate(`/courses/${created.id}`);
+        return;
+      }
+
+      message.success(
+        createdChapters > 0
+          ? t("addCourse.createdWithChapters", { count: createdChapters })
+          : t("addCourse.createdSuccess"),
+      );
       form.resetFields();
       setLessons([]);
       navigate(`/courses/${created.id}`);

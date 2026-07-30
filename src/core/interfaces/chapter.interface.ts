@@ -9,6 +9,7 @@ export interface IChapter {
   status: boolean;
   position: number;
   lesson: ILesson;
+  lessonId?: number;
   createdAt: string;
   updateAt: string;
   subchapters?: IChapter[];
