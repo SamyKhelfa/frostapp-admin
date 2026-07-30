@@ -26,6 +26,7 @@ export const userApi = emptySplitApi.injectEndpoints?.({
           params: { page, limit, enablePagination },
         };
       },
+      providesTags: ["Users"],
     }),
     getUserById: builder.query<IUser, string>({
       query: (id: string) => ({
@@ -39,6 +40,14 @@ export const userApi = emptySplitApi.injectEndpoints?.({
         method: "PATCH",
         body: { active },
       }),
+      invalidatesTags: ["Users"],
+    }),
+    deleteUser: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
     }),
   }),
 });
@@ -47,4 +56,5 @@ export const {
   useGetUsersQuery,
   useGetUserByIdQuery,
   useToggleUserActiveMutation,
+  useDeleteUserMutation,
 } = userApi;

@@ -27,11 +27,21 @@ import { useCreateLessonMutation } from "@core/api/lesson.api";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 
+// Chapitre en cours de saisie : pas encore persisté, donc sans id/createdAt
+type LocalChapter = Partial<IChapter> & {
+  title: string;
+  description: string;
+  image: string;
+  images: string[];
+  status: boolean;
+  position: number;
+};
+
 type LocalLesson = {
   id: string;
   title: string;
   description: string;
-  chapters: IChapter[];
+  chapters: LocalChapter[];
 };
 
 export const AddCourse: React.FC = () => {
@@ -111,7 +121,7 @@ export const AddCourse: React.FC = () => {
   const handleChapterChange = (
     lessonIndex: number,
     chapterIndex: number,
-    field: keyof IChapter,
+    field: keyof LocalChapter,
     value: any,
   ) => {
     const next = [...lessons];

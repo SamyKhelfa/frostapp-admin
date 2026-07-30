@@ -1,16 +1,25 @@
-import { useGetUsersQuery } from "@core/api";
 import type { IUser } from "@core/interfaces";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { UsersTableSkeleton } from "../components/user/UsersTableSkeleton";
 import Card from "antd/es/card/Card";
-import { Skeleton, Table, Tag } from "antd";
+import { Skeleton, Table, Popconfirm, Button, message, Switch } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DeleteOutlined } from "@ant-design/icons";
+import {
+  useGetUsersQuery,
+  useToggleUserActiveMutation,
+  useDeleteUserMutation,
+} from "@core/api";
 
 export const Users: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const [toggleActive, { isLoading: isToggling }] =
+    useToggleUserActiveMutation();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   const { data, isLoading } = useGetUsersQuery({
     page,
@@ -60,12 +69,23 @@ export const Users: React.FC = () => {
         title: t("users.colActive"),
         dataIndex: "active",
         key: "active",
-        render: (active: boolean | undefined) =>
-          active ? (
-            <Tag color="success">{t("users.activeYes")}</Tag>
-          ) : (
-            <Tag>{t("users.activeNo")}</Tag>
-          ),
+        render: (active: boolean | undefined, record) => (
+          <Popconfirm
+            title={active ? "Désactiver ce compte ?" : "Réactiver ce compte ?"}
+            description={
+              active
+                ? `${record.name} ne pourra plus se connecter.`
+                : `${record.name} pourra à nouveau se connecter.`
+            }
+            okText="Confirmer"
+            cancelText="Annuler"
+            onConfirm={() =>
+              handleToggleActive(record.id, !active, record.name)
+            }
+          >
+            <Switch checked={active} loading={isToggling} size="small" />
+          </Popconfirm>
+        ),
       },
       {
         title: t("users.colCreatedAt"),
@@ -81,9 +101,50 @@ export const Users: React.FC = () => {
         render: (v: string) =>
           v ? new Date(v).toLocaleString(dateLocale) : "—",
       },
+      {
+        title: t("users.colActions"),
+        key: "actions",
+        width: 80,
+        fixed: "right",
+        align: "center",
+        render: (_, record) => (
+          <Popconfirm
+            title="Supprimer définitivement ?"
+            description={`Le compte de ${record.name} et toutes ses données seront effacées. Action irréversible.`}
+            okText="Oui, supprimer"
+            cancelText="Annuler"
+            okButtonProps={{ danger: true, loading: isDeleting }}
+            onConfirm={() => handleDeleteUser(record.id, record.name)}
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        ),
+      },
     ],
-    [t, dateLocale],
+    [t, dateLocale, isToggling, isDeleting],
   );
+
+  const handleToggleActive = async (
+    id: number,
+    active: boolean,
+    name: string,
+  ) => {
+    try {
+      await toggleActive({ id, active }).unwrap();
+      message.success(active ? `${name} réactivé` : `${name} désactivé`);
+    } catch (e: any) {
+      message.error(e?.data?.message ?? "Erreur");
+    }
+  };
+
+  const handleDeleteUser = async (id: number, name: string) => {
+    try {
+      await deleteUser(id).unwrap();
+      message.success(`Compte de ${name} supprimé`);
+    } catch (e: any) {
+      message.error(e?.data?.message ?? "Erreur lors de la suppression");
+    }
+  };
 
   return (
     <AdminLayout>

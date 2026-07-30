@@ -43,19 +43,24 @@ export const emptySplitApi = createApi({
   baseQuery: baseQueryWithReauth({
     baseUrl: apiUrl,
     prepareHeaders: async (headers: Headers) => {
-      try {
-        const authToken = JSON.parse(localStorage.getItem("auth-token") || "");
+      const raw = localStorage.getItem("auth-token");
 
-        if (authToken) {
-          headers.set("Authorization", `Bearer ${authToken}`);
+      if (raw) {
+        try {
+          const authToken = JSON.parse(raw);
+
+          if (authToken) {
+            headers.set("Authorization", `Bearer ${authToken}`);
+          }
+        } catch {
+          // Token corrompu en storage : on le purge plutôt que de boucler sur des 401
+          localStorage.removeItem("auth-token");
         }
-
-        return headers;
-      } catch (err) {
-        console.log(err);
       }
+
+      return headers;
     },
   }),
-  tagTypes: ["Lessons"],
+  tagTypes: ["Lessons", "Users"],
   endpoints: () => ({}),
 });

@@ -62,7 +62,8 @@
     "roleUser": "Utilisateur",
     "activeYes": "Oui",
     "activeNo": "Non",
-    "paginationTotal": "{{start}}–{{end}} sur {{total}} utilisateurs"
+    "paginationTotal": "{{start}}–{{end}} sur {{total}} utilisateurs",
+    "colActions": "Actions"
   },
   "community": {
     "title": "Communauté",
