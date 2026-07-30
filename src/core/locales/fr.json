@@ -155,7 +155,9 @@
     "colStatus": "Statut",
     "colCreatedAt": "Créé le",
     "statusActive": "Activé",
-    "statusInactive": "Désactivé"
+    "statusInactive": "Désactivé",
+    "colActions": "Actions",
+    "deleteOk": "Oui, supprimer"
   },
   "auth": {
     "toastLoginSuccess": "Vous êtes maintenant connecté",
@@ -168,5 +170,44 @@
   },
   "errors": {
     "themeProvider": "useTheme doit être utilisé dans un ThemeProvider"
+  },
+  "chapterForm": {
+    "titleCreate": "Nouveau chapitre",
+    "titleEdit": "Modifier le chapitre",
+    "submit": "Créer",
+    "submitEdit": "Enregistrer",
+    "created": "Chapitre créé",
+    "updated": "Chapitre modifié",
+    "deleted": "Chapitre supprimé",
+    "error": "Impossible d'enregistrer le chapitre",
+    "deleteError": "Impossible de supprimer le chapitre",
+    "deleteTitle": "Supprimer ce chapitre ?",
+    "deleteConfirm": "« {{title}} » et tous ses sous-chapitres seront supprimés définitivement.",
+    "image": "Image du chapitre",
+    "imagePlaceholder": "URL de l'image"
+  },
+  "subChapterForm": {
+    "titleCreate": "Nouveau sous-chapitre",
+    "titleEdit": "Modifier le sous-chapitre",
+    "submit": "Créer",
+    "submitEdit": "Enregistrer",
+    "created": "Sous-chapitre créé",
+    "updated": "Sous-chapitre modifié",
+    "deleted": "Sous-chapitre supprimé",
+    "error": "Impossible d'enregistrer le sous-chapitre",
+    "deleteError": "Impossible de supprimer le sous-chapitre",
+    "deleteTitle": "Supprimer ce sous-chapitre ?",
+    "deleteConfirm": "« {{title}} » sera supprimé définitivement."
+  },
+  "chapterDetail": {
+    "backToCourse": "Retour au cours",
+    "notFound": "Chapitre introuvable",
+    "noSubChapters": "Aucun sous-chapitre dans ce chapitre",
+    "subChaptersCount_one": "{{count}} sous-chapitre",
+    "subChaptersCount_other": "{{count}} sous-chapitres",
+    "colTitle": "Titre du sous-chapitre",
+    "colVideo": "Vidéo",
+    "colDuration": "Durée",
+    "minutes": "{{duration}} min"
   }
 }

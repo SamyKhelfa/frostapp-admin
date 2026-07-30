@@ -48,6 +48,24 @@ export const chapterApi = emptySplitApi.injectEndpoints({
       // doit être invalidé lui aussi.
       invalidatesTags: ["Chapters", "Lessons"],
     }),
+    updateChapter: builder.mutation<
+      IChapter,
+      { id: number; body: Partial<IChapter> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/chapters/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Chapters", "Lessons"],
+    }),
+    deleteChapter: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/chapters/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Chapters", "Lessons"],
+    }),
   }),
 });
 
@@ -55,4 +73,6 @@ export const {
   useGetChaptersQuery,
   useGetChapterByIdQuery,
   useCreateChapterMutation,
+  useUpdateChapterMutation,
+  useDeleteChapterMutation,
 } = chapterApi;

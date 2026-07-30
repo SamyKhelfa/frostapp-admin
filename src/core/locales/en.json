@@ -155,7 +155,9 @@
     "colStatus": "Status",
     "colCreatedAt": "Created on",
     "statusActive": "Enabled",
-    "statusInactive": "Disabled"
+    "statusInactive": "Disabled",
+    "colActions": "Actions",
+    "deleteOk": "Yes, delete"
   },
   "auth": {
     "toastLoginSuccess": "You are now signed in",
@@ -168,5 +170,44 @@
   },
   "errors": {
     "themeProvider": "useTheme must be used within ThemeProvider"
+  },
+  "chapterForm": {
+    "titleCreate": "New chapter",
+    "titleEdit": "Edit chapter",
+    "submit": "Create",
+    "submitEdit": "Save",
+    "created": "Chapter created",
+    "updated": "Chapter updated",
+    "deleted": "Chapter deleted",
+    "error": "Could not save the chapter",
+    "deleteError": "Could not delete the chapter",
+    "deleteTitle": "Delete this chapter?",
+    "deleteConfirm": "“{{title}}” and all its subchapters will be permanently deleted.",
+    "image": "Chapter image",
+    "imagePlaceholder": "Image URL"
+  },
+  "subChapterForm": {
+    "titleCreate": "New subchapter",
+    "titleEdit": "Edit subchapter",
+    "submit": "Create",
+    "submitEdit": "Save",
+    "created": "Subchapter created",
+    "updated": "Subchapter updated",
+    "deleted": "Subchapter deleted",
+    "error": "Could not save the subchapter",
+    "deleteError": "Could not delete the subchapter",
+    "deleteTitle": "Delete this subchapter?",
+    "deleteConfirm": "“{{title}}” will be permanently deleted."
+  },
+  "chapterDetail": {
+    "backToCourse": "Back to course",
+    "notFound": "Chapter not found",
+    "noSubChapters": "No subchapter in this chapter",
+    "subChaptersCount_one": "{{count}} subchapter",
+    "subChaptersCount_other": "{{count}} subchapters",
+    "colTitle": "Subchapter title",
+    "colVideo": "Video",
+    "colDuration": "Duration",
+    "minutes": "{{duration}} min"
   }
 }

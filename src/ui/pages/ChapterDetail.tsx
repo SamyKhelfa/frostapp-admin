@@ -21,57 +21,58 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import AdminLayout from "../components/AdminLayout/AdminLayout";
 import { LessonsTableSkeleton } from "../components/courses/LessonsTableSkeleton";
-import { ChapterFormModal } from "../components/courses/ChapterFormModal";
-import { useGetLessonByIdQuery } from "@core/api/lesson.api";
-import { useDeleteChapterMutation } from "@core/api/chapter.api";
-import type { IChapter } from "@core/interfaces";
+import { SubChapterFormModal } from "../components/courses/SubChapterFormModal";
+import { useGetChapterByIdQuery } from "@core/api/chapter.api";
+import { useDeleteSubChapterMutation } from "@core/api/subchapter.api";
+import type { ISubchapter } from "@core/interfaces";
 
 const { Title, Text } = Typography;
 
-export default function CourseDetail() {
-  const { courseId } = useParams<{ courseId: string }>();
+/** Vue d'un chapitre : la liste de ses sous-chapitres. */
+export default function ChapterDetail() {
+  const { courseId, chapterId } = useParams<{
+    courseId: string;
+    chapterId: string;
+  }>();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const {
-    data: course,
+    data: chapter,
     isLoading,
     isError,
-  } = useGetLessonByIdQuery(courseId as string, { skip: !courseId });
+  } = useGetChapterByIdQuery(chapterId as string, { skip: !chapterId });
 
-  const [deleteChapter, { isLoading: isDeleting }] = useDeleteChapterMutation();
+  const [deleteSubChapter, { isLoading: isDeleting }] =
+    useDeleteSubChapterMutation();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editing, setEditing] = useState<IChapter | null>(null);
+  const [editing, setEditing] = useState<ISubchapter | null>(null);
 
-  const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
+  const subChapters = [...(chapter?.SubChapter ?? [])].sort(
+    (a, b) => a.position - b.position,
+  );
 
   const openCreate = () => {
     setEditing(null);
     setIsFormOpen(true);
   };
 
-  const openEdit = (chapter: IChapter) => {
-    setEditing(chapter);
+  const openEdit = (subChapter: ISubchapter) => {
+    setEditing(subChapter);
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (chapter: IChapter) => {
+  const handleDelete = async (subChapter: ISubchapter) => {
     try {
-      await deleteChapter(chapter.id).unwrap();
-      message.success(t("chapterForm.deleted"));
+      await deleteSubChapter(subChapter.id).unwrap();
+      message.success(t("subChapterForm.deleted"));
     } catch (e: unknown) {
       const msg = (e as { data?: { message?: string } })?.data?.message;
-      message.error(msg ?? t("chapterForm.deleteError"));
+      message.error(msg ?? t("subChapterForm.deleteError"));
     }
   };
 
-  // Les `chapters` de l'API sont les chapitres du cours ; leurs `SubChapter`
-  // en sont les sous-chapitres.
-  const chapters = [...(course?.chapters ?? [])].sort(
-    (a, b) => a.position - b.position,
-  );
-
-  const columns: ColumnsType<IChapter> = [
+  const columns: ColumnsType<ISubchapter> = [
     {
       title: t("courseDetail.colPosition"),
       dataIndex: "position",
@@ -82,10 +83,9 @@ export default function CourseDetail() {
       render: (position: number) => <Tag>#{position}</Tag>,
     },
     {
-      title: t("courseDetail.colTitle"),
+      title: t("chapterDetail.colTitle"),
       dataIndex: "title",
       key: "title",
-      sorter: (a, b) => a.title.localeCompare(b.title),
     },
     {
       title: t("courseDetail.colDescription"),
@@ -95,10 +95,25 @@ export default function CourseDetail() {
         description || <Text type="secondary">{t("courseDetail.empty")}</Text>,
     },
     {
-      title: t("courseDetail.colSubChapters"),
-      key: "subChapters",
+      title: t("chapterDetail.colVideo"),
+      dataIndex: "video",
+      key: "video",
+      render: (video: string) =>
+        video ? (
+          <a href={video} target="_blank" rel="noreferrer">
+            {video}
+          </a>
+        ) : (
+          <Text type="secondary">{t("courseDetail.empty")}</Text>
+        ),
+    },
+    {
+      title: t("chapterDetail.colDuration"),
+      dataIndex: "duration",
+      key: "duration",
       width: 120,
-      render: (_, record) => <Tag>{record.SubChapter?.length ?? 0}</Tag>,
+      sorter: (a, b) => a.duration - b.duration,
+      render: (duration: number) => t("chapterDetail.minutes", { duration }),
     },
     {
       title: t("courseDetail.colStatus"),
@@ -119,56 +134,41 @@ export default function CourseDetail() {
       ),
     },
     {
-      title: t("courseDetail.colCreatedAt"),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      width: 160,
-      render: (date: string) =>
-        date
-          ? new Date(date).toLocaleDateString(dateLocale, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : "—",
-    },
-    {
       title: t("courseDetail.colActions"),
       key: "actions",
       width: 110,
       fixed: "right",
       align: "center",
-      // La ligne ouvre le chapitre : la cellule d'actions doit stopper la
-      // propagation, popup de confirmation comprise (portail React).
       render: (_, record) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <Space>
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => openEdit(record)}
-            />
-            <Popconfirm
-              title={t("chapterForm.deleteTitle")}
-              description={t("chapterForm.deleteConfirm", {
-                title: record.title,
-              })}
-              okText={t("courseDetail.deleteOk")}
-              cancelText={t("addCourse.cancel")}
-              okButtonProps={{ danger: true, loading: isDeleting }}
-              onConfirm={() => handleDelete(record)}
-            >
-              <Button type="text" danger icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Space>
-        </div>
+        <Space>
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => openEdit(record)}
+          />
+          <Popconfirm
+            title={t("subChapterForm.deleteTitle")}
+            description={t("subChapterForm.deleteConfirm", {
+              title: record.title,
+            })}
+            okText={t("courseDetail.deleteOk")}
+            cancelText={t("addCourse.cancel")}
+            okButtonProps={{ danger: true, loading: isDeleting }}
+            onConfirm={() => handleDelete(record)}
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
       ),
     },
   ];
 
   const backButton = (
-    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/courses")}>
-      {t("courseDetail.backToCourses")}
+    <Button
+      icon={<ArrowLeftOutlined />}
+      onClick={() => navigate(courseId ? `/courses/${courseId}` : "/courses")}
+    >
+      {t("chapterDetail.backToCourse")}
     </Button>
   );
 
@@ -182,13 +182,13 @@ export default function CourseDetail() {
     );
   }
 
-  if (isError || !course) {
+  if (isError || !chapter) {
     return (
       <AdminLayout>
         <Card>
           <Space orientation="vertical" style={{ width: "100%" }} size="large">
             {backButton}
-            <Empty description={t("courseDetail.notFound")} />
+            <Empty description={t("chapterDetail.notFound")} />
           </Space>
         </Card>
       </AdminLayout>
@@ -211,54 +211,58 @@ export default function CourseDetail() {
               }}
             >
               <Title level={2} style={{ margin: 0 }}>
-                {course.title}
+                {chapter.title}
               </Title>
               <Space>
+                <Tag color={chapter.status ? "green" : "red"}>
+                  {chapter.status
+                    ? t("courseDetail.statusActive")
+                    : t("courseDetail.statusInactive")}
+                </Tag>
                 <Tag color="blue">
-                  {t("courseDetail.chaptersCount", { count: chapters.length })}
+                  {t("chapterDetail.subChaptersCount", {
+                    count: subChapters.length,
+                  })}
                 </Tag>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={openCreate}
                 >
-                  {t("addCourse.addChapter")}
+                  {t("addCourse.addSubChapter")}
                 </Button>
               </Space>
             </div>
             <Text type="secondary">
-              {course.description || t("courseDetail.empty")}
+              {chapter.description || t("courseDetail.empty")}
             </Text>
           </div>
 
-          <Table<IChapter>
+          <Table<ISubchapter>
             rowKey="id"
             columns={columns}
-            dataSource={chapters}
+            dataSource={subChapters}
             pagination={false}
-            onRow={(record) => ({
-              onClick: () =>
-                navigate(`/courses/${course.id}/chapters/${record.id}`),
-              style: { cursor: "pointer" },
-            })}
             scroll={{ x: "max-content" }}
             styles={{
               body: { cell: { whiteSpace: "nowrap" } },
               header: { cell: { whiteSpace: "nowrap" } },
             }}
             locale={{
-              emptyText: <Empty description={t("courseDetail.noChapters")} />,
+              emptyText: (
+                <Empty description={t("chapterDetail.noSubChapters")} />
+              ),
             }}
           />
         </Space>
       </Card>
 
-      <ChapterFormModal
+      <SubChapterFormModal
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        lessonId={course.id}
-        chapter={editing}
-        nextPosition={chapters.length + 1}
+        chapterId={chapter.id}
+        subChapter={editing}
+        nextPosition={subChapters.length + 1}
       />
     </AdminLayout>
   );
