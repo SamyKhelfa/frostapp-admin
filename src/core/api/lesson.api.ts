@@ -2,6 +2,7 @@ import {
   PaginatedResult,
   PaginationParams,
   type ILesson,
+  type ILessonFullPayload,
 } from "@core/interfaces";
 import { emptySplitApi } from "@infra/http";
 
@@ -45,6 +46,18 @@ export const lessonApi = emptySplitApi.injectEndpoints({
       }),
       invalidatesTags: ["Lessons"],
     }),
+    /**
+     * Crée l'arborescence complète en une requête : le cours (Lesson), ses
+     * leçons (Chapter) et leurs chapitres (SubChapter), dans une transaction.
+     */
+    createLessonFull: builder.mutation<ILesson, ILessonFullPayload>({
+      query: (body) => ({
+        url: "/lessons/full",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Lessons", "Chapters"],
+    }),
     deleteLesson: builder.mutation<void, number>({
       query: (id) => ({
         url: `/lessons/${id}`,
@@ -59,5 +72,6 @@ export const {
   useGetLessonsQuery,
   useGetLessonByIdQuery,
   useCreateLessonMutation,
+  useCreateLessonFullMutation,
   useDeleteLessonMutation,
 } = lessonApi;

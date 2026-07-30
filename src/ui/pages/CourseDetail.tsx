@@ -23,7 +23,9 @@ export default function CourseDetail() {
 
   const dateLocale = i18n.language.startsWith("en") ? "en-US" : "fr-FR";
 
-  const chapters = [...(course?.chapters ?? [])].sort(
+  // Les `chapters` de l'API sont les « leçons » du cours ; leurs `SubChapter`
+  // sont les « chapitres ».
+  const lessons = [...(course?.chapters ?? [])].sort(
     (a, b) => a.position - b.position,
   );
 
@@ -49,6 +51,12 @@ export default function CourseDetail() {
       key: "description",
       render: (description: string) =>
         description || <Text type="secondary">{t("courseDetail.empty")}</Text>,
+    },
+    {
+      title: t("courseDetail.colChapters"),
+      key: "subChapters",
+      width: 120,
+      render: (_, record) => <Tag>{record.SubChapter?.length ?? 0}</Tag>,
     },
     {
       title: t("courseDetail.colStatus"),
@@ -132,7 +140,7 @@ export default function CourseDetail() {
                 {course.title}
               </Title>
               <Tag color="blue">
-                {t("courseDetail.chaptersCount", { count: chapters.length })}
+                {t("courseDetail.lessonsCount", { count: lessons.length })}
               </Tag>
             </div>
             <Text type="secondary">
@@ -143,7 +151,7 @@ export default function CourseDetail() {
           <Table<IChapter>
             rowKey="id"
             columns={columns}
-            dataSource={chapters}
+            dataSource={lessons}
             pagination={false}
             scroll={{ x: "max-content" }}
             styles={{
@@ -151,7 +159,7 @@ export default function CourseDetail() {
               header: { cell: { whiteSpace: "nowrap" } },
             }}
             locale={{
-              emptyText: <Empty description={t("courseDetail.noChapters")} />,
+              emptyText: <Empty description={t("courseDetail.noLessons")} />,
             }}
           />
         </Space>

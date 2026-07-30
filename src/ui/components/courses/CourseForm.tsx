@@ -20,29 +20,41 @@ import {
   DeleteOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import type { IChapter } from "@core/interfaces/chapter.interface";
 import type { ILesson } from "@core/interfaces";
-import { useCreateLessonMutation } from "@core/api/lesson.api";
-import { useCreateChapterMutation } from "@core/api/chapter.api";
+import { useCreateLessonFullMutation } from "@core/api/lesson.api";
 
-type LocalChapter = Pick<
-  IChapter,
-  "title" | "description" | "image" | "status" | "position"
-> & {
-  images?: string[];
-};
+/**
+ * Vocabulaire : ce que l'admin appelle cours / leçon / chapitre correspond
+ * respectivement à Lesson / Chapter / SubChapter côté API. Les types locaux
+ * sont nommés d'après l'entité créée, les libellés affichés d'après le
+ * vocabulaire métier.
+ */
 
-type LocalLesson = {
-  id: string;
+/** Un « chapitre » dans l'UI. */
+type DraftSubChapter = {
   title: string;
   description: string;
-  chapters: LocalChapter[];
+  video: string;
+  duration: number;
+  status: boolean;
+  position: number;
+};
+
+/** Une « leçon » dans l'UI. */
+type DraftChapter = {
+  key: string;
+  title: string;
+  description: string;
+  images: string[];
+  status: boolean;
+  position: number;
+  subChapters: DraftSubChapter[];
 };
 
 type Props = {
   /** Renseigné en mode édition (pas encore branché à l'API). */
   courseId?: string;
-  /** Appelé après une création réussie, avec la leçon créée. */
+  /** Appelé après une création réussie, avec le cours créé. */
   onCreated?: (lesson: ILesson) => void;
   /** Rendu du bouton d'annulation, à la main de l'appelant (page ou modale). */
   onCancel?: () => void;
@@ -56,12 +68,9 @@ export const CourseForm: React.FC<Props> = ({
   const { Text } = Typography;
   const { t } = useTranslation();
   const [form] = Form.useForm();
-  const [lessons, setLessons] = useState<LocalLesson[]>([]);
-  const [createLesson, { isLoading: isCreatingLesson }] =
-    useCreateLessonMutation();
-  const [createChapter, { isLoading: isCreatingChapters }] =
-    useCreateChapterMutation();
-  const isCreating = isCreatingLesson || isCreatingChapters;
+  const [chapters, setChapters] = useState<DraftChapter[]>([]);
+  const [createLessonFull, { isLoading: isCreating }] =
+    useCreateLessonFullMutation();
   const isEditMode = Boolean(courseId);
 
   useEffect(() => {
@@ -71,191 +80,183 @@ export const CourseForm: React.FC<Props> = ({
     }
   }, [courseId]);
 
-  const handleAddLesson = () => {
-    setLessons([
-      ...lessons,
+  /* ----------------------------- Leçons (Chapter) ---------------------------- */
+
+  const handleAddChapter = () => {
+    setChapters([
+      ...chapters,
       {
-        id: crypto.randomUUID?.() ?? Date.now().toString(),
+        key: crypto.randomUUID?.() ?? Date.now().toString(),
         title: "",
         description: "",
-        chapters: [],
+        images: [],
+        status: false,
+        position: chapters.length + 1,
+        subChapters: [],
       },
     ]);
   };
 
-  const handleDeleteLesson = (lessonIndex: number) => {
-    setLessons(lessons.filter((_, i) => i !== lessonIndex));
+  const handleDeleteChapter = (chapterIndex: number) => {
+    setChapters(chapters.filter((_, i) => i !== chapterIndex));
     message.success(t("addCourse.lessonDeleted"));
   };
 
-  const handleLessonChange = (
-    lessonIndex: number,
-    field: keyof Omit<LocalLesson, "chapters" | "id">,
-    value: any,
-  ) => {
-    const next = [...lessons];
-    next[lessonIndex] = { ...next[lessonIndex], [field]: value };
-    setLessons(next);
-  };
-
-  const handleAddChapter = (lessonIndex: number) => {
-    const next = [...lessons];
-    const chapters = next[lessonIndex].chapters || [];
-    next[lessonIndex] = {
-      ...next[lessonIndex],
-      chapters: [
-        ...chapters,
-        {
-          title: "",
-          description: "",
-          image: "",
-          images: [],
-          status: false,
-          position: chapters.length + 1,
-        },
-      ],
-    };
-    setLessons(next);
-  };
-
-  const handleDeleteChapter = (lessonIndex: number, chapterIndex: number) => {
-    const next = [...lessons];
-    next[lessonIndex] = {
-      ...next[lessonIndex],
-      chapters: next[lessonIndex].chapters.filter((_, i) => i !== chapterIndex),
-    };
-    setLessons(next);
-    message.success(t("addCourse.chapterDeleted"));
-  };
-
   const handleChapterChange = (
-    lessonIndex: number,
     chapterIndex: number,
-    field: keyof LocalChapter,
-    value: any,
+    field: keyof Omit<DraftChapter, "key" | "subChapters">,
+    value: unknown,
   ) => {
-    const next = [...lessons];
-    const chapters = [...(next[lessonIndex].chapters || [])];
-    chapters[chapterIndex] = { ...chapters[chapterIndex], [field]: value };
-    next[lessonIndex] = { ...next[lessonIndex], chapters };
-    setLessons(next);
+    const next = [...chapters];
+    next[chapterIndex] = { ...next[chapterIndex], [field]: value };
+    setChapters(next);
   };
 
-  const handleAddChapterImages = async (
-    lessonIndex: number,
-    chapterIndex: number,
-    _newFiles: File[],
-  ) => {
-    const next = [...lessons];
-    const chapters = [...(next[lessonIndex].chapters || [])];
-    const existing =
-      chapters[chapterIndex].images ??
-      (chapters[chapterIndex].image ? [chapters[chapterIndex].image] : []);
-
+  const handleAddChapterImages = async (chapterIndex: number) => {
+    // TODO: uploader le fichier (module Cloudinary côté back) et pousser l'URL
+    // renvoyée. En attendant, l'image reste vide et n'est pas persistée.
     const uploaded = [""];
 
-    const nextImages = [...existing, ...uploaded];
-
-    chapters[chapterIndex] = {
-      ...chapters[chapterIndex],
-      images: nextImages,
-      image: nextImages[0] ?? "",
+    const next = [...chapters];
+    next[chapterIndex] = {
+      ...next[chapterIndex],
+      images: [...next[chapterIndex].images, ...uploaded],
     };
-
-    next[lessonIndex] = { ...next[lessonIndex], chapters };
-    setLessons(next);
+    setChapters(next);
   };
 
   const handleRemoveChapterImage = (
-    lessonIndex: number,
     chapterIndex: number,
     imageIndex: number,
   ) => {
-    const next = [...lessons];
-    const chapters = [...(next[lessonIndex].chapters || [])];
-    const current =
-      chapters[chapterIndex].images ??
-      (chapters[chapterIndex].image ? [chapters[chapterIndex].image] : []);
-
-    const nextImages = current.filter((_, idx) => idx !== imageIndex);
-
-    chapters[chapterIndex] = {
-      ...chapters[chapterIndex],
-      images: nextImages,
-      image: nextImages[0] ?? "",
+    const next = [...chapters];
+    next[chapterIndex] = {
+      ...next[chapterIndex],
+      images: next[chapterIndex].images.filter((_, i) => i !== imageIndex),
     };
-
-    next[lessonIndex] = { ...next[lessonIndex], chapters };
-    setLessons(next);
+    setChapters(next);
     message.success(t("addCourse.imageRemoved"));
   };
 
-  const onSubmit = async (values: any) => {
+  /* -------------------------- Chapitres (SubChapter) ------------------------- */
+
+  const handleAddSubChapter = (chapterIndex: number) => {
+    const next = [...chapters];
+    const subChapters = next[chapterIndex].subChapters;
+    next[chapterIndex] = {
+      ...next[chapterIndex],
+      subChapters: [
+        ...subChapters,
+        {
+          title: "",
+          description: "",
+          video: "",
+          duration: 0,
+          status: false,
+          position: subChapters.length + 1,
+        },
+      ],
+    };
+    setChapters(next);
+  };
+
+  const handleDeleteSubChapter = (
+    chapterIndex: number,
+    subChapterIndex: number,
+  ) => {
+    const next = [...chapters];
+    next[chapterIndex] = {
+      ...next[chapterIndex],
+      subChapters: next[chapterIndex].subChapters.filter(
+        (_, i) => i !== subChapterIndex,
+      ),
+    };
+    setChapters(next);
+    message.success(t("addCourse.chapterDeleted"));
+  };
+
+  const handleSubChapterChange = (
+    chapterIndex: number,
+    subChapterIndex: number,
+    field: keyof DraftSubChapter,
+    value: unknown,
+  ) => {
+    const next = [...chapters];
+    const subChapters = [...next[chapterIndex].subChapters];
+    subChapters[subChapterIndex] = {
+      ...subChapters[subChapterIndex],
+      [field]: value,
+    };
+    next[chapterIndex] = { ...next[chapterIndex], subChapters };
+    setChapters(next);
+  };
+
+  /* ---------------------------------- Submit --------------------------------- */
+
+  const onSubmit = async (values: { title: string; description: string }) => {
     try {
       if (isEditMode && courseId) {
         message.warning("Édition pas encore branchée à l'API");
         return;
       }
 
-      // Le backend ne connaît que Lesson > Chapter : le cours saisi devient la
-      // leçon, et tous les chapitres des blocs du formulaire lui sont rattachés.
-      const chaptersToCreate = lessons.flatMap((lesson) => lesson.chapters);
+      if (chapters.some((chapter) => !chapter.title.trim())) {
+        message.error(t("addCourse.lessonTitleRequired"));
+        return;
+      }
 
-      if (chaptersToCreate.some((chapter) => !chapter.title?.trim())) {
+      if (
+        chapters.some((chapter) =>
+          chapter.subChapters.some((subChapter) => !subChapter.title.trim()),
+        )
+      ) {
         message.error(t("addCourse.chapterTitleRequired"));
         return;
       }
 
-      const payload = {
+      // Une seule requête : le back crée le cours, ses leçons et ses chapitres
+      // dans la même transaction.
+      const created = await createLessonFull({
         title: values.title,
         description: values.description,
-      };
+        chapters: chapters.map((chapter, chapterIndex) => ({
+          title: chapter.title.trim(),
+          description: chapter.description,
+          image: chapter.images[0] ?? "",
+          status: chapter.status,
+          position: chapter.position || chapterIndex + 1,
+          subChapters: chapter.subChapters.map(
+            (subChapter, subChapterIndex) => ({
+              title: subChapter.title.trim(),
+              description: subChapter.description,
+              video: subChapter.video,
+              duration: subChapter.duration || 0,
+              status: subChapter.status,
+              position: subChapter.position || subChapterIndex + 1,
+            }),
+          ),
+        })),
+      }).unwrap();
 
-      const created = await createLesson(payload).unwrap();
-
-      // Les chapitres ne peuvent pas être créés en même temps que la leçon
-      // (LessonCreateDTO.chapters attend des ids existants à connecter), il faut
-      // un POST /chapters par chapitre, en série pour préserver l'ordre.
-      let createdChapters = 0;
-      try {
-        for (const [index, chapter] of chaptersToCreate.entries()) {
-          await createChapter({
-            title: chapter.title.trim(),
-            description: chapter.description ?? "",
-            image: chapter.image ?? "",
-            status: chapter.status ?? false,
-            position: index + 1,
-            lessonId: created.id,
-          }).unwrap();
-          createdChapters += 1;
-        }
-      } catch (chapterError) {
-        message.warning(
-          t("addCourse.chaptersPartialError", {
-            created: createdChapters,
-            total: chaptersToCreate.length,
-          }),
-        );
-        console.error(chapterError);
-        // La leçon existe déjà : on rend la main plutôt que de laisser
-        // resoumettre le formulaire, ce qui la créerait une seconde fois.
-        form.resetFields();
-        setLessons([]);
-        onCreated?.(created);
-        return;
-      }
+      const subChapterCount = chapters.reduce(
+        (total, chapter) => total + chapter.subChapters.length,
+        0,
+      );
 
       message.success(
-        createdChapters > 0
-          ? t("addCourse.createdWithChapters", { count: createdChapters })
-          : t("addCourse.createdSuccess"),
+        t("addCourse.createdWithContent", {
+          lessons: chapters.length,
+          chapters: subChapterCount,
+        }),
       );
       form.resetFields();
-      setLessons([]);
+      setChapters([]);
       onCreated?.(created);
-    } catch (e: any) {
-      const msg = e?.data?.message ?? t("addCourse.createError");
-      message.error(msg);
+    } catch (e: unknown) {
+      const msg =
+        (e as { data?: { message?: string } })?.data?.message ??
+        t("addCourse.createError");
+      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
     }
   };
 
@@ -313,18 +314,18 @@ export const CourseForm: React.FC<Props> = ({
           }}
         >
           <h3 style={{ margin: 0, color: "#1890ff" }}>
-            {t("addCourse.lessonsHeading", { count: lessons.length })}
+            {t("addCourse.lessonsHeading", { count: chapters.length })}
           </h3>
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={handleAddLesson}
+            onClick={handleAddChapter}
           >
             {t("addCourse.addLesson")}
           </Button>
         </div>
 
-        {lessons.length === 0 ? (
+        {chapters.length === 0 ? (
           <Empty
             description={t("addCourse.noLessons")}
             style={{ padding: "40px 0" }}
@@ -332,8 +333,8 @@ export const CourseForm: React.FC<Props> = ({
         ) : (
           <Collapse
             accordion
-            items={lessons.map((lesson, lessonIndex) => ({
-              key: lesson.id,
+            items={chapters.map((chapter, chapterIndex) => ({
+              key: chapter.key,
               label: (
                 <div
                   style={{
@@ -343,16 +344,23 @@ export const CourseForm: React.FC<Props> = ({
                   }}
                 >
                   <span>
-                    {lesson.title ||
+                    {chapter.title ||
                       t("addCourse.lessonFallback", {
-                        number: lessonIndex + 1,
+                        number: chapterIndex + 1,
                       })}
                   </span>
-                  <Tag color="blue">
-                    {t("addCourse.chaptersCount", {
-                      count: lesson.chapters.length,
-                    })}
-                  </Tag>
+                  <Space>
+                    <Tag color={chapter.status ? "green" : "red"}>
+                      {chapter.status
+                        ? t("addCourse.statusOn")
+                        : t("addCourse.statusOff")}
+                    </Tag>
+                    <Tag color="blue">
+                      {t("addCourse.chaptersCount", {
+                        count: chapter.subChapters.length,
+                      })}
+                    </Tag>
+                  </Space>
                 </div>
               ),
               children: (
@@ -364,27 +372,137 @@ export const CourseForm: React.FC<Props> = ({
                   <Form.Item label={t("addCourse.fieldLessonTitle")} required>
                     <Input
                       placeholder={t("addCourse.fieldLessonTitlePlaceholder")}
-                      value={lesson.title}
+                      value={chapter.title}
                       onChange={(e) =>
-                        handleLessonChange(lessonIndex, "title", e.target.value)
+                        handleChapterChange(
+                          chapterIndex,
+                          "title",
+                          e.target.value,
+                        )
                       }
                     />
                   </Form.Item>
+
                   <Form.Item label={t("addCourse.fieldLessonDescription")}>
                     <Input.TextArea
                       placeholder={t(
                         "addCourse.fieldLessonDescriptionPlaceholder",
                       )}
-                      value={lesson.description}
+                      rows={3}
+                      value={chapter.description}
                       onChange={(e) =>
-                        handleLessonChange(
-                          lessonIndex,
+                        handleChapterChange(
+                          chapterIndex,
                           "description",
                           e.target.value,
                         )
                       }
                     />
                   </Form.Item>
+
+                  <Form.Item label={t("addCourse.fieldLessonImages")}>
+                    <Space orientation="vertical" style={{ width: "100%" }}>
+                      <Upload
+                        accept="image/*"
+                        multiple
+                        showUploadList={false}
+                        beforeUpload={async () => {
+                          try {
+                            await handleAddChapterImages(chapterIndex);
+                            message.success(t("addCourse.imageImported"));
+                          } catch (err) {
+                            message.error(t("addCourse.imageImportFailed"));
+                            console.error(err);
+                          }
+                          return false;
+                        }}
+                      >
+                        <Button icon={<UploadOutlined />}>
+                          {t("addCourse.addImages")}
+                        </Button>
+                      </Upload>
+
+                      {chapter.images.length > 0 ? (
+                        <Space wrap>
+                          {chapter.images.map((img, imgIndex) => (
+                            <div
+                              key={`${chapter.key}-img-${imgIndex}`}
+                              style={{
+                                position: "relative",
+                                width: 140,
+                                height: 100,
+                                borderRadius: 8,
+                                overflow: "hidden",
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
+                              }}
+                            >
+                              <img
+                                src={img}
+                                alt={t("addCourse.previewAlt")}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                type="primary"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() =>
+                                  handleRemoveChapterImage(
+                                    chapterIndex,
+                                    imgIndex,
+                                  )
+                                }
+                                style={{
+                                  position: "absolute",
+                                  top: 8,
+                                  right: 8,
+                                  padding: "0 6px",
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </Space>
+                      ) : (
+                        <Text type="secondary">
+                          {t("addCourse.noLessonImages")}
+                        </Text>
+                      )}
+                    </Space>
+                  </Form.Item>
+
+                  <Space style={{ width: "100%" }} align="center">
+                    <Form.Item
+                      label={t("addCourse.position")}
+                      style={{ margin: 0 }}
+                    >
+                      <InputNumber
+                        min={1}
+                        value={chapter.position || chapterIndex + 1}
+                        onChange={(value) =>
+                          handleChapterChange(chapterIndex, "position", value)
+                        }
+                        style={{ width: 100 }}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      label={t("addCourse.statusLessonLabel")}
+                      style={{ margin: 0 }}
+                    >
+                      <Switch
+                        checked={chapter.status}
+                        onChange={(value) =>
+                          handleChapterChange(chapterIndex, "status", value)
+                        }
+                      />
+                    </Form.Item>
+                  </Space>
+
+                  <Divider style={{ margin: 0 }} />
 
                   <div
                     style={{
@@ -395,251 +513,188 @@ export const CourseForm: React.FC<Props> = ({
                   >
                     <h4 style={{ margin: 0 }}>
                       {t("addCourse.chaptersHeading", {
-                        count: lesson.chapters.length,
+                        count: chapter.subChapters.length,
                       })}
                     </h4>
                     <Button
                       type="dashed"
                       icon={<PlusOutlined />}
-                      onClick={() => handleAddChapter(lessonIndex)}
+                      onClick={() => handleAddSubChapter(chapterIndex)}
                     >
                       {t("addCourse.addChapter")}
                     </Button>
                   </div>
 
-                  {lesson.chapters.length === 0 ? (
+                  {chapter.subChapters.length === 0 ? (
                     <Empty description={t("addCourse.noChapters")} />
                   ) : (
                     <Collapse
-                      items={lesson.chapters.map((chapter, chapterIndex) => ({
-                        key: `${lesson.id}-${chapterIndex}`,
-                        label: (
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              width: "100%",
-                            }}
-                          >
-                            <span>
-                              {chapter.title ||
-                                t("addCourse.chapterFallback", {
-                                  number: chapterIndex + 1,
-                                })}
-                              <Tag
-                                color={chapter.status ? "green" : "red"}
-                                style={{ marginLeft: 8 }}
-                              >
-                                {chapter.status
+                      items={chapter.subChapters.map(
+                        (subChapter, subChapterIndex) => ({
+                          key: `${chapter.key}-${subChapterIndex}`,
+                          label: (
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                width: "100%",
+                              }}
+                            >
+                              <span>
+                                {subChapter.title ||
+                                  t("addCourse.chapterFallback", {
+                                    number: subChapterIndex + 1,
+                                  })}
+                              </span>
+                              <Tag color={subChapter.status ? "green" : "red"}>
+                                {subChapter.status
                                   ? t("addCourse.statusOn")
                                   : t("addCourse.statusOff")}
                               </Tag>
-                            </span>
-                          </div>
-                        ),
-                        children: (
-                          <Space
-                            orientation="vertical"
-                            style={{ width: "100%" }}
-                            size="large"
-                          >
-                            <Form.Item
-                              label={t("addCourse.fieldChapterTitle")}
-                              required
+                            </div>
+                          ),
+                          children: (
+                            <Space
+                              orientation="vertical"
+                              style={{ width: "100%" }}
+                              size="large"
                             >
-                              <Input
-                                placeholder={t(
-                                  "addCourse.fieldChapterTitlePlaceholder",
-                                )}
-                                value={chapter.title || ""}
-                                onChange={(e) =>
-                                  handleChapterChange(
-                                    lessonIndex,
-                                    chapterIndex,
-                                    "title",
-                                    e.target.value,
-                                  )
-                                }
-                              />
-                            </Form.Item>
-
-                            <Form.Item
-                              label={t("addCourse.fieldChapterDescription")}
-                            >
-                              <Input.TextArea
-                                placeholder={t(
-                                  "addCourse.fieldChapterDescriptionPlaceholder",
-                                )}
-                                rows={3}
-                                value={chapter.description || ""}
-                                onChange={(e) =>
-                                  handleChapterChange(
-                                    lessonIndex,
-                                    chapterIndex,
-                                    "description",
-                                    e.target.value,
-                                  )
-                                }
-                              />
-                            </Form.Item>
-
-                            <Form.Item
-                              label={t("addCourse.fieldChapterImages")}
-                            >
-                              <Space
-                                orientation="vertical"
-                                style={{ width: "100%" }}
+                              <Form.Item
+                                label={t("addCourse.fieldChapterTitle")}
+                                required
                               >
-                                <Upload
-                                  accept="image/*"
-                                  multiple
-                                  showUploadList={false}
-                                  beforeUpload={async (file) => {
-                                    try {
-                                      await handleAddChapterImages(
-                                        lessonIndex,
-                                        chapterIndex,
-                                        [file],
-                                      );
-                                      message.success(
-                                        t("addCourse.imageImported"),
-                                      );
-                                    } catch (err) {
-                                      message.error(
-                                        t("addCourse.imageImportFailed"),
-                                      );
-                                      console.error(err);
-                                    }
-                                    return false;
-                                  }}
+                                <Input
+                                  placeholder={t(
+                                    "addCourse.fieldChapterTitlePlaceholder",
+                                  )}
+                                  value={subChapter.title}
+                                  onChange={(e) =>
+                                    handleSubChapterChange(
+                                      chapterIndex,
+                                      subChapterIndex,
+                                      "title",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+
+                              <Form.Item
+                                label={t("addCourse.fieldChapterDescription")}
+                              >
+                                <Input.TextArea
+                                  placeholder={t(
+                                    "addCourse.fieldChapterDescriptionPlaceholder",
+                                  )}
+                                  rows={3}
+                                  value={subChapter.description}
+                                  onChange={(e) =>
+                                    handleSubChapterChange(
+                                      chapterIndex,
+                                      subChapterIndex,
+                                      "description",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+
+                              <Form.Item
+                                label={t("addCourse.fieldChapterVideo")}
+                              >
+                                <Input
+                                  placeholder={t(
+                                    "addCourse.fieldChapterVideoPlaceholder",
+                                  )}
+                                  value={subChapter.video}
+                                  onChange={(e) =>
+                                    handleSubChapterChange(
+                                      chapterIndex,
+                                      subChapterIndex,
+                                      "video",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+
+                              <Space style={{ width: "100%" }} align="center">
+                                <Form.Item
+                                  label={t("addCourse.fieldChapterDuration")}
+                                  style={{ margin: 0 }}
                                 >
-                                  <Button icon={<UploadOutlined />}>
-                                    {t("addCourse.addImages")}
-                                  </Button>
-                                </Upload>
+                                  <InputNumber
+                                    min={0}
+                                    value={subChapter.duration}
+                                    onChange={(value) =>
+                                      handleSubChapterChange(
+                                        chapterIndex,
+                                        subChapterIndex,
+                                        "duration",
+                                        value ?? 0,
+                                      )
+                                    }
+                                    style={{ width: 120 }}
+                                  />
+                                </Form.Item>
 
-                                {(() => {
-                                  const chapterImages =
-                                    (chapter.images as string[] | undefined) ??
-                                    (chapter.image
-                                      ? [chapter.image as string]
-                                      : []);
+                                <Form.Item
+                                  label={t("addCourse.position")}
+                                  style={{ margin: 0 }}
+                                >
+                                  <InputNumber
+                                    min={1}
+                                    value={
+                                      subChapter.position || subChapterIndex + 1
+                                    }
+                                    onChange={(value) =>
+                                      handleSubChapterChange(
+                                        chapterIndex,
+                                        subChapterIndex,
+                                        "position",
+                                        value,
+                                      )
+                                    }
+                                    style={{ width: 100 }}
+                                  />
+                                </Form.Item>
 
-                                  return chapterImages.length > 0 ? (
-                                    <Space wrap>
-                                      {chapterImages.map((img, imgIndex) => (
-                                        <div
-                                          key={`${lesson.id}-${chapterIndex}-${imgIndex}`}
-                                          style={{
-                                            position: "relative",
-                                            width: 140,
-                                            height: 100,
-                                            borderRadius: 8,
-                                            overflow: "hidden",
-                                            boxShadow:
-                                              "0 1px 4px rgba(0,0,0,0.15)",
-                                          }}
-                                        >
-                                          <img
-                                            src={img}
-                                            alt={t("addCourse.previewAlt")}
-                                            style={{
-                                              width: "100%",
-                                              height: "100%",
-                                              objectFit: "cover",
-                                            }}
-                                          />
-                                          <Button
-                                            size="small"
-                                            type="primary"
-                                            danger
-                                            icon={<DeleteOutlined />}
-                                            onClick={() =>
-                                              handleRemoveChapterImage(
-                                                lessonIndex,
-                                                chapterIndex,
-                                                imgIndex,
-                                              )
-                                            }
-                                            style={{
-                                              position: "absolute",
-                                              top: 8,
-                                              right: 8,
-                                              padding: "0 6px",
-                                            }}
-                                          />
-                                        </div>
-                                      ))}
-                                    </Space>
-                                  ) : (
-                                    <Text type="secondary">
-                                      {t("addCourse.noChapterImages")}
-                                    </Text>
-                                  );
-                                })()}
+                                <Form.Item
+                                  label={t("addCourse.statusChapterLabel")}
+                                  style={{ margin: 0 }}
+                                >
+                                  <Switch
+                                    checked={subChapter.status}
+                                    onChange={(value) =>
+                                      handleSubChapterChange(
+                                        chapterIndex,
+                                        subChapterIndex,
+                                        "status",
+                                        value,
+                                      )
+                                    }
+                                  />
+                                </Form.Item>
                               </Space>
-                            </Form.Item>
-                            <Space style={{ width: "100%" }} align="center">
-                              <Form.Item
-                                label={t("addCourse.position")}
-                                style={{ margin: 0 }}
-                              >
-                                <InputNumber
-                                  min={1}
-                                  value={chapter.position || chapterIndex + 1}
-                                  onChange={(value) =>
-                                    handleChapterChange(
-                                      lessonIndex,
-                                      chapterIndex,
-                                      "position",
-                                      value,
-                                    )
-                                  }
-                                  style={{ width: 100 }}
-                                />
-                              </Form.Item>
 
-                              <Form.Item
-                                label={t("addCourse.statusLabel")}
-                                style={{ margin: 0 }}
-                                extra={
-                                  <Text type="secondary">
-                                    {chapter.status
-                                      ? t("addCourse.statusHintOn")
-                                      : t("addCourse.statusHintOff")}
-                                  </Text>
+                              <Button
+                                danger
+                                type="dashed"
+                                block
+                                icon={<DeleteOutlined />}
+                                onClick={() =>
+                                  handleDeleteSubChapter(
+                                    chapterIndex,
+                                    subChapterIndex,
+                                  )
                                 }
                               >
-                                <Switch
-                                  checked={chapter.status || false}
-                                  checkedChildren={t("addCourse.statusOn")}
-                                  unCheckedChildren={t("addCourse.statusOff")}
-                                  onChange={(value) =>
-                                    handleChapterChange(
-                                      lessonIndex,
-                                      chapterIndex,
-                                      "status",
-                                      value,
-                                    )
-                                  }
-                                />
-                              </Form.Item>
+                                {t("addCourse.deleteChapter")}
+                              </Button>
                             </Space>
-
-                            <Button
-                              danger
-                              type="dashed"
-                              block
-                              icon={<DeleteOutlined />}
-                              onClick={() =>
-                                handleDeleteChapter(lessonIndex, chapterIndex)
-                              }
-                            >
-                              {t("addCourse.deleteChapter")}
-                            </Button>
-                          </Space>
-                        ),
-                      }))}
+                          ),
+                        }),
+                      )}
                     />
                   )}
 
@@ -647,7 +702,7 @@ export const CourseForm: React.FC<Props> = ({
                     danger
                     type="dashed"
                     icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteLesson(lessonIndex)}
+                    onClick={() => handleDeleteChapter(chapterIndex)}
                     block
                   >
                     {t("addCourse.deleteLesson")}
