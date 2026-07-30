@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import { Layout, Menu, Card } from "antd";
-import { HomeOutlined, BookOutlined, TeamOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import {
+  HomeOutlined,
+  BookOutlined,
+  TeamOutlined,
+  UserOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuthContext } from "@core/context/AuthContext";
@@ -19,7 +25,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <Layout style={{ minHeight: "100vh" }}>
       <Card style={{ background: "#001529" }}>
         <Sider width={220}>
-          <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
             <div
               style={{
                 color: "#fff",
@@ -62,14 +70,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   key: "/users",
                   icon: <UserOutlined />,
                   label: t("layout.users"),
-                }
+                },
               ]}
             />
             <Menu
               theme="dark"
               mode="inline"
               selectable={false}
-              style={{ marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.1)" }}
+              style={{
+                marginTop: "auto",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+              }}
               items={[
                 {
                   key: "logout",

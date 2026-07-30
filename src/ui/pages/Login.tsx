@@ -78,9 +78,7 @@ export default function Login() {
             <Form.Item
               label={t("login.password")}
               name="password"
-              rules={[
-                { required: true, message: t("login.passwordRequired") },
-              ]}
+              rules={[{ required: true, message: t("login.passwordRequired") }]}
             >
               <Input.Password
                 placeholder={t("login.passwordMask")}

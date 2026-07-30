@@ -1,5 +1,5 @@
 import { Descriptions, List, Tag, Button, Space, Empty } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EyeOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import type { ILesson } from "@core/interfaces";
 
@@ -36,8 +36,8 @@ export const CourseDetailPreview: React.FC<Props> = ({ lesson }) => {
                   <Tag>#{chapter.position}</Tag>
                   <span>{chapter.title}</span>
                 </Space>
-                <Tag color={chapter.status ? "green" : "default"}>
-                  {chapter.status ? "Actif" : "Inactif"}
+                <Tag color={chapter.status ? "green" : "red"}>
+                  {chapter.status ? "Activé" : "Désactivé"}
                 </Tag>
               </List.Item>
             )}
@@ -51,10 +51,10 @@ export const CourseDetailPreview: React.FC<Props> = ({ lesson }) => {
         <Space>
           <Button
             type="primary"
-            icon={<EditOutlined />}
+            icon={<EyeOutlined />}
             onClick={() => navigate(`/courses/${lesson.id}`)}
           >
-            Éditer
+            Voir le détail
           </Button>
           <Button
             icon={<PlusOutlined />}

@@ -24,5 +24,5 @@ createRoot(container).render(
         </Provider>
       </I18nAntdProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

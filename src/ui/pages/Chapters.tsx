@@ -29,7 +29,7 @@ export const Chapters: React.FC = () => {
 
   const columns: ColumnsType<IChapter> = [
     {
-      title: t("Titre"),
+      title: t("Titre du chapitre"),
       dataIndex: "title",
       key: "title",
       width: 80,
@@ -47,13 +47,13 @@ export const Chapters: React.FC = () => {
       key: "status",
       render: (status: boolean) =>
         status ? (
-          <Tag color="green">Actif</Tag>
+          <Tag color="green">{t("courseDetail.statusActive")}</Tag>
         ) : (
-          <Tag color="red">Inactif</Tag>
+          <Tag color="red">{t("courseDetail.statusInactive")}</Tag>
         ),
     },
     {
-      title: t("Leçon"),
+      title: t("Cours"),
       dataIndex: "lesson",
       key: "lesson",
       render: (lesson: IChapter["lesson"]) => lesson?.title ?? "—",

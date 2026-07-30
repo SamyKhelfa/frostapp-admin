@@ -3,3 +3,4 @@ export * from "./pagination.interface";
 export * from "./user.interface";
 export * from "./lesson.interface";
 export * from "./chapter.interface";
+export * from "./subchapter.interface";

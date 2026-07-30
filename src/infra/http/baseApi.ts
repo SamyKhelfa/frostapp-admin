@@ -61,6 +61,6 @@ export const emptySplitApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Lessons", "Users"],
+  tagTypes: ["Lessons", "Chapters", "Users"],
   endpoints: () => ({}),
 });

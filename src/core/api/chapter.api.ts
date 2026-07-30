@@ -29,12 +29,14 @@ export const chapterApi = emptySplitApi.injectEndpoints({
           params: { page, limit, enablePagination },
         };
       },
+      providesTags: ["Chapters"],
     }),
     getChapterById: builder.query<IChapter, string>({
       query: (id: string) => ({
         url: `/chapters/${id}`,
         method: "GET",
       }),
+      providesTags: ["Chapters"],
     }),
     createChapter: builder.mutation<IChapter, Partial<IChapter>>({
       query: (body) => ({
@@ -42,6 +44,27 @@ export const chapterApi = emptySplitApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      // Le cours expose ses chapitres (include: { chapters: true }) : son cache
+      // doit être invalidé lui aussi.
+      invalidatesTags: ["Chapters", "Lessons"],
+    }),
+    updateChapter: builder.mutation<
+      IChapter,
+      { id: number; body: Partial<IChapter> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/chapters/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Chapters", "Lessons"],
+    }),
+    deleteChapter: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/chapters/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Chapters", "Lessons"],
     }),
   }),
 });
@@ -50,4 +73,6 @@ export const {
   useGetChaptersQuery,
   useGetChapterByIdQuery,
   useCreateChapterMutation,
+  useUpdateChapterMutation,
+  useDeleteChapterMutation,
 } = chapterApi;
