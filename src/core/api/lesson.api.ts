@@ -58,6 +58,21 @@ export const lessonApi = emptySplitApi.injectEndpoints({
       }),
       invalidatesTags: ["Lessons", "Chapters"],
     }),
+    /**
+     * Mise à jour partielle d'un cours. Le back expose un PUT, mais ignore les
+     * champs absents du payload : envoyer { title } ne touche pas la description.
+     */
+    updateLesson: builder.mutation<
+      ILesson,
+      { id: number; data: Partial<Pick<ILesson, "title" | "description">> }
+    >({
+      query: ({ id, data }) => ({
+        url: `/lessons/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Lessons"],
+    }),
     deleteLesson: builder.mutation<void, number>({
       query: (id) => ({
         url: `/lessons/${id}`,
@@ -73,5 +88,6 @@ export const {
   useGetLessonByIdQuery,
   useCreateLessonMutation,
   useCreateLessonFullMutation,
+  useUpdateLessonMutation,
   useDeleteLessonMutation,
 } = lessonApi;

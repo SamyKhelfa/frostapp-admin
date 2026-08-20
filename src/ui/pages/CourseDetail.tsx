@@ -65,8 +65,6 @@ export default function CourseDetail() {
     }
   };
 
-  // Les `chapters` de l'API sont les chapitres du cours ; leurs `SubChapter`
-  // en sont les sous-chapitres.
   const chapters = [...(course?.chapters ?? [])].sort(
     (a, b) => a.position - b.position,
   );
@@ -138,8 +136,6 @@ export default function CourseDetail() {
       width: 110,
       fixed: "right",
       align: "center",
-      // La ligne ouvre le chapitre : la cellule d'actions doit stopper la
-      // propagation, popup de confirmation comprise (portail React).
       render: (_, record) => (
         <div onClick={(e) => e.stopPropagation()}>
           <Space>

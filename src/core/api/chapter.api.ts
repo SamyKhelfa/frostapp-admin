@@ -44,8 +44,6 @@ export const chapterApi = emptySplitApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      // Le cours expose ses chapitres (include: { chapters: true }) : son cache
-      // doit être invalidé lui aussi.
       invalidatesTags: ["Chapters", "Lessons"],
     }),
     updateChapter: builder.mutation<

@@ -1,11 +1,22 @@
 import AdminLayout from "../components/AdminLayout/AdminLayout";
-import { Card, Table, Button, Tag, Popconfirm, message } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Popconfirm,
+  message,
+  Modal,
+  Input,
+  Tooltip,
+} from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useGetLessonsQuery,
   useDeleteLessonMutation,
+  useUpdateLessonMutation,
 } from "@core/api/lesson.api";
 import { ColumnsType } from "antd/es/table";
 import { ILesson } from "@core/interfaces";
@@ -32,6 +43,7 @@ export const Courses: React.FC = () => {
   const navigate = useNavigate();
 
   const [deleteLesson, { isLoading: isDeleting }] = useDeleteLessonMutation();
+  const [updateLesson, { isLoading: isUpdating }] = useUpdateLessonMutation();
 
   const handleDelete = async (id: number, title: string) => {
     try {
@@ -39,6 +51,47 @@ export const Courses: React.FC = () => {
       message.success(`Cours "${title}" supprimé`);
     } catch (e: any) {
       message.error(e?.data?.message ?? "Erreur lors de la suppression");
+    }
+  };
+
+  // Cours en cours de renommage : null = modale fermée
+  const [editingLesson, setEditingLesson] = useState<ILesson | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+
+  const openRenameModal = (lesson: ILesson) => {
+    setEditingLesson(lesson);
+    setDraftTitle(lesson.title);
+  };
+
+  const closeRenameModal = () => {
+    setEditingLesson(null);
+    setDraftTitle("");
+  };
+
+  const handleRenameTitle = async () => {
+    if (!editingLesson) return;
+
+    const trimmed = draftTitle.trim();
+
+    if (!trimmed) {
+      message.error("Le titre ne peut pas être vide");
+      return;
+    }
+
+    if (trimmed === editingLesson.title) {
+      closeRenameModal();
+      return;
+    }
+
+    try {
+      await updateLesson({
+        id: editingLesson.id,
+        data: { title: trimmed },
+      }).unwrap();
+      message.success("Titre mis à jour");
+      closeRenameModal();
+    } catch (e: any) {
+      message.error(e?.data?.message ?? "Erreur lors de la mise à jour");
     }
   };
 
@@ -54,8 +107,7 @@ export const Courses: React.FC = () => {
       title: t("Titre"),
       dataIndex: "title",
       key: "title",
-      width: 80,
-      sorter: (a, b) => a.id - b.id,
+      sorter: (a, b) => a.title.localeCompare(b.title),
     },
     {
       title: t("Durée"),
@@ -83,7 +135,7 @@ export const Courses: React.FC = () => {
     {
       title: t("Actions"),
       key: "actions",
-      width: 80,
+      width: 110,
       fixed: "right",
       align: "center",
       render: (_, record) => (
@@ -91,6 +143,13 @@ export const Courses: React.FC = () => {
         // d'actions, popup de confirmation comprise (React propage les events
         // à travers le portail).
         <div onClick={(e) => e.stopPropagation()}>
+          <Tooltip title="Modifier le titre">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => openRenameModal(record)}
+            />
+          </Tooltip>
           <Popconfirm
             title="Supprimer ce cours ?"
             description={`"${record.title}" et tous ses chapitres seront supprimés définitivement.`}
@@ -99,7 +158,9 @@ export const Courses: React.FC = () => {
             okButtonProps={{ danger: true, loading: isDeleting }}
             onConfirm={() => handleDelete(record.id, record.title)}
           >
-            <Button type="text" danger icon={<DeleteOutlined />} />
+            <Tooltip title="Supprimer">
+              <Button type="text" danger icon={<DeleteOutlined />} />
+            </Tooltip>
           </Popconfirm>
         </div>
       ),
@@ -173,6 +234,27 @@ export const Courses: React.FC = () => {
         open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
       />
+
+      <Modal
+        title="Modifier le titre du cours"
+        open={editingLesson !== null}
+        onOk={handleRenameTitle}
+        onCancel={closeRenameModal}
+        okText="Enregistrer"
+        cancelText="Annuler"
+        confirmLoading={isUpdating}
+        destroyOnClose
+      >
+        <Input
+          value={draftTitle}
+          onChange={(e) => setDraftTitle(e.target.value)}
+          onPressEnter={handleRenameTitle}
+          placeholder="Titre du cours"
+          maxLength={120}
+          showCount
+          autoFocus
+        />
+      </Modal>
     </AdminLayout>
   );
 };
