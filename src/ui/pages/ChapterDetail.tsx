@@ -48,7 +48,7 @@ export default function ChapterDetail() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editing, setEditing] = useState<ISubchapter | null>(null);
 
-  const subChapters = [...(chapter?.SubChapter ?? [])].sort(
+  const subChapters = [...(chapter?.subChapters ?? [])].sort(
     (a, b) => a.position - b.position,
   );
 

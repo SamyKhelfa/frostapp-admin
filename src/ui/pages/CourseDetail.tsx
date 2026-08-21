@@ -96,7 +96,7 @@ export default function CourseDetail() {
       title: t("courseDetail.colSubChapters"),
       key: "subChapters",
       width: 120,
-      render: (_, record) => <Tag>{record.SubChapter?.length ?? 0}</Tag>,
+      render: (_, record) => <Tag>{record.subChapters?.length ?? 0}</Tag>,
     },
     {
       title: t("courseDetail.colStatus"),

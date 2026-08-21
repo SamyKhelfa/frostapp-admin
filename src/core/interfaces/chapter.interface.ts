@@ -14,6 +14,5 @@ export interface IChapter {
   lessonId?: number;
   createdAt: string;
   updateAt: string;
-  /** Nom de la relation tel que renvoyé par Prisma. */
-  SubChapter?: ISubchapter[];
+  subChapters?: ISubchapter[];
 }
